@@ -27,7 +27,7 @@ public class AuthController
 		this.restTemplate = restTemplate;
 	}
 
-	private static final String STOCK_API ="http://localhost:8083/api/v1/auth/";
+	private static final String STOCK_API ="http://shares-app:8081/api/v1/auth";
 
 
 	@PostMapping("/register")
