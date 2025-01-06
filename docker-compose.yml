@@ -25,9 +25,9 @@ services:
     volumes:
       - pgadmin_data:/var/lib/pgadmin
 
-  stock-app:
-    build: ./Stock
-    container_name: stock_container
+  shares-app:
+    build: ./Shares
+    container_name: shares_container
     ports:
       - "8081:8081"
     depends_on:
@@ -37,13 +37,13 @@ services:
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: postgres
 
-  order-app:
-    build: ./Order
-    container_name: order_container
+  AuthService-app:
+    build: ./AuthService
+    container_name: AuthService_container
     ports:
       - "8082:8082"
     depends_on:
-      - stock-app
+      - shares-app
 
 volumes:
   postgres_data:
