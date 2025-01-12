@@ -43,40 +43,42 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 
-        // Here, we retrieve the Authorization header from the HTTP request, which is where the JWT token is typically included.
+        // Retrieve the Authorization header from the HTTP request
         String authorizationHeader = request.getHeader(AUTHORIZATION);
 
-        // This conditional statement checks several conditions before proceeding with JWT authentication. It ensures that the filter is not applied to the login endpoint (to avoid authentication loops) and that the Authorization header exists and starts with "Bearer ".
-        if(!request.getServletPath().equals(SecurityConfig.AUTH_PATH + "/login") && authorizationHeader != null && authorizationHeader.startsWith(BEARER)){
+        // Check if the Authorization header exists and starts with "Bearer "
+        if (authorizationHeader != null && authorizationHeader.startsWith(BEARER)) {
+            String token = authorizationHeader.substring(7); // Extract token without "Bearer "
 
-            // If the conditions are met, this line extracts the token part from the Authorization header, removing the "Bearer " prefix.
-            String token = authorizationHeader.substring(7);
+            // Validate the token
+            if (jwtUtil.isTokenValid(token)) {
 
-            // Here, it checks if the extracted token is valid using the jwtUtil.isTokenValid(token) method. This method checks if the token is not expired and has a valid signature.
-            if(jwtUtil.isTokenValid(token)){
-
-                // If the token is valid, it extracts the username from the token using the jwtUtil.getUsernameFromToken(token) method. If the username is null, it throws a UserNotFoundException.
-                String usernmae = jwtUtil.getUsernameFromToken(token);
-                if (usernmae == null){
-                    throw new UserNotFoundException("user not found");
+                // Extract civilId from the token
+                String civilId = jwtUtil.extractCivilId(token);
+                if (civilId == null) {
+                    throw new UserNotFoundException("Civil ID not found in token");
                 }
 
-                // It loads user details (including roles and permissions) from the database using the userDetailsService. This is done by calling userDetailsService.loadUserByUsername(username).
-                UserDetails userDetails = userDetailsService.loadUserByUsername(usernmae);
+                // Load user details using civilId
+                UserDetails userDetails = userDetailsService.loadUserByCivilId(civilId);
+                if (userDetails == null) {
+                    throw new UserNotFoundException("User not found for Civil ID: " + civilId);
+                }
 
+                // Create an Authentication object
+                UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
+                        userDetails, null, userDetails.getAuthorities());
 
-                // This line creates an Authentication object (UsernamePasswordAuthenticationToken) with the user details and authorities (roles and permissions) obtained from the database.
-                UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails,null,userDetails.getAuthorities());
-
-                // It sets the authentication details, including the remote address and session ID, using WebAuthenticationDetailsSource.
+                // Set additional details for the authentication object
                 authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
-                // Finally, it sets the authenticated Authentication object in the Spring Security SecurityContextHolder, indicating that the user is authenticated and authorized to access protected resources.
+                // Set the authentication object in the security context
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }
         }
 
-        // This line allows the request to continue processing by passing it along the filter chain.
-        filterChain.doFilter(request,response);
+        // Allow the request to continue processing
+        filterChain.doFilter(request, response);
     }
+
 }

@@ -6,13 +6,27 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import com.example.Shares.entity.UserEntity;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+
+import java.util.*;
+
 public class CustomUserDetails implements UserDetails {
 
     private Long id;
     private String userName;
     private String password;
-
     private String role;
+
+    // Constructor to accept UserEntity
+    public CustomUserDetails(UserEntity user) {
+        this.id = user.getId();
+        this.userName = user.getUsername();
+        this.password = user.getPassword();
+        this.role = user.getRole().toString(); // Adjust if role is stored differently
+    }
 
     public Long getId() {
         return id;
@@ -79,11 +93,9 @@ public class CustomUserDetails implements UserDetails {
 
     public Map<String, Object> getClaims() {
         HashMap<String, Object> claims = new HashMap<>();
-
         claims.put("id", this.id);
         claims.put("userName", this.userName);
         claims.put("role", role);
-
         return claims;
     }
 }

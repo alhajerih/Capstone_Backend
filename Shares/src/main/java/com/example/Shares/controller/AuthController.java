@@ -5,68 +5,88 @@ import com.example.Shares.bo.UserResponse;
 import com.example.Shares.bo.auth.AuthenticationResponse;
 import com.example.Shares.bo.auth.CreateLoginRequest;
 import com.example.Shares.bo.auth.LogoutResponse;
+import com.example.Shares.bo.otp.BankCardRequest;
+import com.example.Shares.bo.otp.GenerateOtpRequest;
+import com.example.Shares.bo.otp.RegisterUserRequest;
+import com.example.Shares.bo.otp.ValidateOtpRequest;
+import com.example.Shares.entity.BankCardEntity;
+import com.example.Shares.entity.UserEntity;
 import com.example.Shares.service.UserService;
-import com.example.Shares.service.auth.AuthService;
+//import com.example.Shares.service.auth.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.List;
 
 @RestController
-@RequestMapping("/api/v1/auth")
+@RequestMapping("/api/user")
 public class AuthController {
+
+
     @Autowired
     private UserService userService;
 
-    @Autowired
-    private AuthService authService;
 
-    @PostMapping("/signup")
-    public ResponseEntity<UserResponse> createUser(@RequestBody CreateUserRequest request) {
-        try {
-            System.out.println("Incoming Request: " + request);
-            UserResponse response = userService.createUser(request);
-            if (response != null) {
-                return new ResponseEntity<>(response, HttpStatus.OK);
-            } else {
-                System.out.println("User creation failed");
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+
+    @PostMapping("/generate-otp")
+    public ResponseEntity<String> generateOtp(@RequestBody GenerateOtpRequest request) {
+        String otp = userService.generateOtp(request.getCivilId());
+        return ResponseEntity.ok("OTP sent to registered phone number: "+otp);
+    }
+
+    @PostMapping("/validate-otp")
+    public ResponseEntity<String> validateOtp(@RequestBody ValidateOtpRequest request) {
+        String token = userService.validateOtp(request.getOtp());
+        return ResponseEntity.ok("Token: "+token); // Return the JWT token
+    }
+
+    @PostMapping("/register")
+    public ResponseEntity<String> registerUser(@RequestBody RegisterUserRequest request) {
+        userService.registerUser(request.getCivilId(), request.getUsername(), request.getPassword());
+        return ResponseEntity.ok("User registered successfully.");
+    }
+
+    @GetMapping("/bank-cards")
+    public ResponseEntity<List<BankCardEntity>> getBankCards(@RequestBody BankCardRequest request) {
+        List<BankCardEntity> bankCards = userService.getBankCards(request.getCivilId());
+        return ResponseEntity.ok(bankCards);
+    }
+
+    @GetMapping("/linked-cards")
+    public ResponseEntity<List<BankCardEntity>> getLinkedCards(@RequestHeader("Authorization") String authorizationHeader) {
+        // Extract JWT by removing the "Bearer " prefix
+        if (!authorizationHeader.startsWith("Bearer ")) {
+            throw new IllegalArgumentException("Invalid Authorization header");
         }
+        String token = authorizationHeader.substring(7);
+
+        System.out.println("Extracted Token: " + token);
+
+        // Fetch linked cards using the token
+        List<BankCardEntity> cards = userService.getLinkedCards(token);
+
+        return ResponseEntity.ok(cards);
+    }
+
+    @PostMapping("/select-cards")
+    public ResponseEntity<String> saveSelectedCards(
+            @RequestHeader("Authorization") String authorizationHeader,
+            @RequestBody List<Long> selectedCardIds) {
+        // Extract token and pass it to the service
+        String token = authorizationHeader.substring(7);
+        userService.saveSelectedCards(token, selectedCardIds);
+        return ResponseEntity.ok("Selected cards updated successfully.");
     }
 
 
-
-    @PostMapping("/login")
-    public ResponseEntity<AuthenticationResponse> login(
-            @Valid @RequestBody CreateLoginRequest authenticationRequest) {
-        try {
-            AuthenticationResponse authenticationResponse = authService.login(authenticationRequest);
-            HttpStatus status = HttpStatus.OK;
-
-            if (authenticationResponse == null) {
-                status = HttpStatus.BAD_REQUEST;
-            }
-
-            return new ResponseEntity<>(authenticationResponse, status);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
-        }
-    }
-
-    @PostMapping("/logout")
-    public ResponseEntity<Void> logout(@RequestBody LogoutResponse auntenticationRequset) {
-        authService.logout(auntenticationRequset);
-
-        return new ResponseEntity<>(HttpStatus.OK);
+    @GetMapping("/user-details")
+    public ResponseEntity<UserEntity> getUserDetails(@RequestHeader("Authorization") String token) {
+        String jwt = token.substring(7); // Remove "Bearer " prefix
+        UserEntity user = userService.getUserFromToken(jwt);
+        return ResponseEntity.ok(user);
     }
 
 }
