@@ -112,12 +112,14 @@ public class UserServiceImpl implements UserService {
         userRepository.save(user);
     }
 
-    public List<BankCardEntity> getBankCards(String civilId) {
-        UserEntity user = userRepository.findByCivilId(civilId)
-                .orElseThrow(() -> new IllegalArgumentException("Civil ID not found"));
+    public List<BankCardEntity> getBankCards(String token) {
+        // Use the helper method to get the user
+        UserEntity user = getUserFromToken(token);
 
-        return user.getBankCards(); // Use the One-to-Many relationship
+        // Return all bank cards for the user
+        return user.getBankCards();
     }
+
 
 
     public List<BankCardEntity> getLinkedCards(String token) {
@@ -168,6 +170,10 @@ public class UserServiceImpl implements UserService {
 //Helper function
     public UserEntity getUserFromToken(String token) {
         String civilId = jwtUtil.extractCivilId(token); // Extract civilId from token
+        if (civilId == null || civilId.isEmpty()) {
+            throw new IllegalArgumentException("Invalid token: Civil ID not found");
+        }
+
         return userRepository.findByCivilId(civilId)
                 .orElseThrow(() -> new IllegalArgumentException("User not found for civilId: " + civilId));
     }

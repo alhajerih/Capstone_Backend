@@ -40,7 +40,7 @@ public class AuthController {
     @PostMapping("/validate-otp")
     public ResponseEntity<String> validateOtp(@RequestBody ValidateOtpRequest request) {
         String token = userService.validateOtp(request.getOtp());
-        return ResponseEntity.ok("Token: "+token); // Return the JWT token
+        return ResponseEntity.ok(token); // Return the JWT token
     }
 
     @PostMapping("/register")
@@ -50,10 +50,22 @@ public class AuthController {
     }
 
     @GetMapping("/bank-cards")
-    public ResponseEntity<List<BankCardEntity>> getBankCards(@RequestBody BankCardRequest request) {
-        List<BankCardEntity> bankCards = userService.getBankCards(request.getCivilId());
+    public ResponseEntity<List<BankCardEntity>> getBankCards(@RequestHeader("Authorization") String authorizationHeader) {
+        // Check Authorization Header
+        if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
+            throw new IllegalArgumentException("Invalid Authorization header");
+        }
+
+        // Extract Token
+        String token = authorizationHeader.substring(7); // Remove "Bearer "
+        System.out.println("Extracted Token: " + token);
+
+        // Validate and Fetch Bank Cards
+        List<BankCardEntity> bankCards = userService.getBankCards(token);
         return ResponseEntity.ok(bankCards);
     }
+
+
 
     @GetMapping("/linked-cards")
     public ResponseEntity<List<BankCardEntity>> getLinkedCards(@RequestHeader("Authorization") String authorizationHeader) {
