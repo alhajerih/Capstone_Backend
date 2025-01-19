@@ -1,0 +1,10 @@
+package com.example.Shares.auth.repository;
+
+import com.example.Shares.auth.entity.BankCardEntity;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import java.util.List;
+
+public interface BankCardRepository extends JpaRepository<BankCardEntity, Long> {
+    List<BankCardEntity> findByUserId(Long userId);
+}

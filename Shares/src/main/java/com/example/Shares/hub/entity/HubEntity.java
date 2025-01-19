@@ -1,0 +1,84 @@
+package com.example.Shares.hub.entity;
+
+import com.example.Shares.auth.entity.BankCardEntity;
+import com.example.Shares.auth.entity.UserEntity;
+import com.example.Shares.wallet.entity.WalletEntity;
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
+import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
+
+@Entity
+@Table(name = "hub")
+public class HubEntity {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    private Double balance;
+    private Boolean isActive;
+
+    @OneToOne
+    @JoinColumn(name = "user_id", nullable = false)
+    @JsonBackReference
+    private UserEntity user;
+
+
+    @OneToMany(mappedBy = "hub", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    @JsonManagedReference
+    private List<WalletEntity> wallets = new ArrayList<>();
+
+    @OneToMany(cascade = CascadeType.ALL)
+    private List<BankCardEntity> linkedCards;
+
+    // Getters and Setters
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public Double getBalance() {
+        return balance;
+    }
+
+    public void setBalance(Double balance) {
+        this.balance = balance;
+    }
+
+    public Boolean getActive() {
+        return isActive;
+    }
+
+    public void setActive(Boolean active) {
+        isActive = active;
+    }
+
+    public UserEntity getUser() {
+        return user;
+    }
+
+    public void setUser(UserEntity user) {
+        this.user = user;
+    }
+
+    public List<WalletEntity> getWallets() {
+        return wallets;
+    }
+
+    public void setWallets(List<WalletEntity> wallets) {
+        this.wallets = wallets;
+    }
+
+    public List<BankCardEntity> getLinkedCards() {
+        return linkedCards;
+    }
+
+    public void setLinkedCards(List<BankCardEntity> linkedCards) {
+        this.linkedCards = linkedCards;
+    }
+}
