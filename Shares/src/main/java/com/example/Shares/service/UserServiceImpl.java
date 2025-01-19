@@ -161,6 +161,18 @@ public class UserServiceImpl implements UserService {
         userRepository.save(user);
     }
 
+    public String login(String username, String password) {
+        // Fetch user by username
+        UserEntity user = userRepository.findByUsername(username);
+
+        // Verify password
+        if (!passwordEncoder.matches(password, user.getPassword())) {
+            throw new IllegalArgumentException("Invalid username or password");
+        }
+
+        // Generate JWT token
+        return jwtUtil.generateToken(user.getCivilId());
+    }
 
 
 

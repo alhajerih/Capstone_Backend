@@ -48,6 +48,13 @@ public class AuthController {
         userService.registerUser(request.getCivilId(), request.getUsername(), request.getPassword());
         return ResponseEntity.ok("User registered successfully.");
     }
+    @PostMapping("/login")
+    public ResponseEntity<String> login(@RequestBody CreateLoginRequest loginRequest) {
+        // Authenticate the user and generate a token
+        String token = userService.login(loginRequest.getUsername(), loginRequest.getPassword());
+        return ResponseEntity.ok(token);
+    }
+
 
     @GetMapping("/bank-cards")
     public ResponseEntity<List<BankCardEntity>> getBankCards(@RequestHeader("Authorization") String authorizationHeader) {

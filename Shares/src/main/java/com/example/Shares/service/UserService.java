@@ -16,4 +16,5 @@ List<BankCardEntity> getBankCards(String civilId);
     void saveSelectedCards(String token, List<Long> selectedCardIds);
     List<BankCardEntity> getLinkedCards(String token);
     UserEntity getUserFromToken(String token);
+    String login(String username, String password);
 }
