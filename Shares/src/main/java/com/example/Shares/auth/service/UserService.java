@@ -1,5 +1,4 @@
-package com.example.Shares.service;
-
+package com.example.Shares.auth.service;
 
 import com.example.Shares.auth.entity.BankCardEntity;
 import com.example.Shares.auth.entity.UserEntity;
@@ -24,3 +23,5 @@ public interface UserService {
 
     String login(String username, String password);
 }
+
+
