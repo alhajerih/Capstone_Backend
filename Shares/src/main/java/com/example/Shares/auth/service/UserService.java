@@ -20,4 +20,8 @@ public interface UserService {
     List<BankCardEntity> getLinkedCards(String token);
 
     UserEntity getUserFromToken(String token);
+
+    String login(String username, String password);
 }
+
+
