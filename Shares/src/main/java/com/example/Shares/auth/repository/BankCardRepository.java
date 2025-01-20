@@ -4,7 +4,11 @@ import com.example.Shares.auth.entity.BankCardEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface BankCardRepository extends JpaRepository<BankCardEntity, Long> {
     List<BankCardEntity> findByUserId(Long userId);
+
+    Optional<BankCardEntity> findByCardNumber(String cardNumber);
+
 }

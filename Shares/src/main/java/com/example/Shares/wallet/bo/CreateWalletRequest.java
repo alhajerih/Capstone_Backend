@@ -1,18 +1,24 @@
 package com.example.Shares.wallet.bo;
 
-import com.example.Shares.auth.entity.BankCardEntity;
-
 public class CreateWalletRequest {
 
 
     private String name;
     private Double balance;
     //private Boolean active;
-    private BankCardEntity chosenCard;
-
+//    private BankCardEntity chosenCard;
+    private String cardNumber;  // New field for card number
 
     public CreateWalletRequest() {
         //Default constructor
+    }
+
+    public String getCardNumber() {
+        return cardNumber;
+    }
+
+    public void setCardNumber(String cardNumber) {
+        this.cardNumber = cardNumber;
     }
 
     public String getName() {
@@ -31,13 +37,7 @@ public class CreateWalletRequest {
         this.balance = balance;
     }
 
-    public BankCardEntity getChosenCard() {
-        return chosenCard;
-    }
 
-    public void setChosenCard(BankCardEntity chosenCard) {
-        this.chosenCard = chosenCard;
-    }
 }
 
 

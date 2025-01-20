@@ -1,0 +1,97 @@
+package com.example.Shares.auth.service;
+
+import com.example.Shares.auth.bo.AddCardToHubRequest;
+import com.example.Shares.auth.bo.BankCardRequest;
+import com.example.Shares.auth.entity.BankCardEntity;
+import com.example.Shares.auth.entity.UserEntity;
+import com.example.Shares.auth.repository.BankCardRepository;
+import com.example.Shares.hub.entity.HubEntity;
+import com.example.Shares.hub.repository.HubRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.Optional;
+
+@Service
+public class BankCardService {
+
+    @Autowired
+    private BankCardRepository cardBankRepository;
+
+    @Autowired
+    private HubRepository hubRepository;
+
+    public void createCard(BankCardRequest request, UserEntity user) {
+        BankCardEntity bankCard = new BankCardEntity();
+        bankCard.setBankName(request.getBankName());
+        bankCard.setCardBalance(request.getBalance());
+        bankCard.setCardType(request.getCardType());
+        bankCard.setUser(user);
+        bankCard.setHub(user.getHub());
+
+        if (user.getBankCards() == null) {
+            user.setBankCards(new ArrayList<>());
+        }
+        user.getBankCards().add(bankCard);
+
+        cardBankRepository.save(bankCard);
+    }
+
+
+    public void addCardToHub(AddCardToHubRequest request, UserEntity user) {
+        Optional<BankCardEntity> bankCardOptional = cardBankRepository.findByCardNumber(request.getCardNumber());
+
+        if (bankCardOptional.isPresent()) {
+            BankCardEntity bankCard = bankCardOptional.get();
+            HubEntity hub = user.getHub();  // Get hub directly from the UserEntity
+
+            if (hub == null) {
+                throw new IllegalArgumentException("User does not have an associated hub.");
+            }
+
+            if (hub.getLinkedCards() == null) {
+                hub.setLinkedCards(new ArrayList<>());
+            }
+
+            bankCard.setSelected(true);
+
+            bankCard.setHub(hub);
+            hub.getLinkedCards().add(bankCard);
+
+            cardBankRepository.save(bankCard);
+            hubRepository.save(hub);
+        } else {
+            throw new IllegalArgumentException("Invalid card number provided.");
+        }
+    }
+
+    public void removeCardFromHub(AddCardToHubRequest request, UserEntity user) {
+        Optional<BankCardEntity> bankCardOptional = cardBankRepository.findByCardNumber(request.getCardNumber());
+
+        if (bankCardOptional.isPresent()) {
+            BankCardEntity bankCard = bankCardOptional.get();
+            HubEntity hub = user.getHub();  // Get hub directly from the UserEntity
+
+            if (hub == null) {
+                throw new IllegalArgumentException("User does not have an associated hub.");
+            }
+
+            if (hub.getLinkedCards() != null && hub.getLinkedCards().contains(bankCard)) {
+                hub.getLinkedCards().remove(bankCard);  // Remove the card from the hub's linked list
+                bankCard.setHub(null);  // Unlink the bank card from the hub
+                bankCard.setSelected(false);  // Set selected to false
+
+                // Save the updated entities
+                cardBankRepository.save(bankCard);
+                hubRepository.save(hub);
+            } else {
+                throw new IllegalArgumentException("The provided card is not linked to the hub.");
+            }
+        } else {
+            throw new IllegalArgumentException("Invalid card number provided.");
+        }
+    }
+
+
+}

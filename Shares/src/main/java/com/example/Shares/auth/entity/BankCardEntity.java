@@ -1,34 +1,69 @@
 package com.example.Shares.auth.entity;
 
-import com.example.Shares.bankAccounts.entity.BankAccountEntity;
+import com.example.Shares.hub.entity.HubEntity;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 
 import javax.persistence.*;
+import java.security.SecureRandom;
 
 @Entity
 public class BankCardEntity {
+    // Secure random number generator
+    private static final SecureRandom RANDOM = new SecureRandom();
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String bankName;
+    private String accountNumber;
     private String cardNumber;
     private Double cardBalance;
-    private String cardType; // e.g., Debit, Credit,saving, checking
+    private String cardType; // e.g., Debit, Credit, saving, checking
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false) // Foreign key to User
     @JsonBackReference
     private UserEntity user;
-    @OneToOne
-    @JoinColumn(name = "bankAccount_id", nullable = false)
-
-    private BankAccountEntity bankAccountEntity;
-
-
+    @ManyToOne
+    @JoinColumn(name = "hub_id") // Foreign key to HubEntity
+    @JsonBackReference // Prevent infinite recursion
+    private HubEntity hub;
     private boolean selected = false;
 
+    // Generate account number and card number
+    @PrePersist
+    @PreUpdate
+    public void generateAccountAndCardNumbers() {
+        if (this.accountNumber == null || this.accountNumber.isEmpty()) {
+            this.accountNumber = generateRandomNumber(10);
+        }
+        if (this.cardNumber == null || this.cardNumber.isEmpty()) {
+            this.cardNumber = generateRandomNumber(16);
+        }
+    }
+
+    private String generateRandomNumber(int length) {
+        StringBuilder number = new StringBuilder(length);
+        for (int i = 0; i < length; i++) {
+            number.append(RANDOM.nextInt(10));
+        }
+        return number.toString();
+    }
 
     // Getters and Setters
+    public String getAccountNumber() {
+        return accountNumber;
+    }
 
+    public void setAccountNumber(String accountNumber) {
+        this.accountNumber = accountNumber;
+    }
+
+    public HubEntity getHub() {
+        return hub;
+    }
+
+    public void setHub(HubEntity hub) {
+        this.hub = hub;
+    }
 
     public boolean isSelected() {
         return selected;
