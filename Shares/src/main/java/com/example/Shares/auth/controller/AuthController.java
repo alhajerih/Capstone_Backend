@@ -1,16 +1,24 @@
-package com.example.Shares.auth.controller;
+package com.example.Shares.controller;
 
-import com.example.Shares.auth.bo.otp.BankCardRequest;
-import com.example.Shares.auth.bo.otp.GenerateOtpRequest;
-import com.example.Shares.auth.bo.otp.RegisterUserRequest;
-import com.example.Shares.auth.bo.otp.ValidateOtpRequest;
-import com.example.Shares.auth.entity.BankCardEntity;
-import com.example.Shares.auth.entity.UserEntity;
-import com.example.Shares.auth.service.UserService;
+import com.example.Shares.bo.CreateUserRequest;
+import com.example.Shares.bo.UserResponse;
+import com.example.Shares.bo.auth.AuthenticationResponse;
+import com.example.Shares.bo.auth.CreateLoginRequest;
+import com.example.Shares.bo.auth.LogoutResponse;
+import com.example.Shares.bo.otp.BankCardRequest;
+import com.example.Shares.bo.otp.GenerateOtpRequest;
+import com.example.Shares.bo.otp.RegisterUserRequest;
+import com.example.Shares.bo.otp.ValidateOtpRequest;
+import com.example.Shares.entity.BankCardEntity;
+import com.example.Shares.entity.UserEntity;
+import com.example.Shares.service.UserService;
+//import com.example.Shares.service.auth.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
 
 @RestController
@@ -22,16 +30,17 @@ public class AuthController {
     private UserService userService;
 
 
+
     @PostMapping("/generate-otp")
     public ResponseEntity<String> generateOtp(@RequestBody GenerateOtpRequest request) {
         String otp = userService.generateOtp(request.getCivilId());
-        return ResponseEntity.ok("OTP sent to registered phone number: " + otp);
+        return ResponseEntity.ok("OTP sent to registered phone number: "+otp);
     }
 
     @PostMapping("/validate-otp")
     public ResponseEntity<String> validateOtp(@RequestBody ValidateOtpRequest request) {
         String token = userService.validateOtp(request.getOtp());
-        return ResponseEntity.ok("Token: " + token); // Return the JWT token
+        return ResponseEntity.ok(token); // Return the JWT token
     }
 
     @PostMapping("/register")
@@ -39,12 +48,31 @@ public class AuthController {
         userService.registerUser(request.getCivilId(), request.getUsername(), request.getPassword());
         return ResponseEntity.ok("User registered successfully.");
     }
+    @PostMapping("/login")
+    public ResponseEntity<String> login(@RequestBody CreateLoginRequest loginRequest) {
+        // Authenticate the user and generate a token
+        String token = userService.login(loginRequest.getUsername(), loginRequest.getPassword());
+        return ResponseEntity.ok(token);
+    }
+
 
     @GetMapping("/bank-cards")
-    public ResponseEntity<List<BankCardEntity>> getBankCards(@RequestBody BankCardRequest request) {
-        List<BankCardEntity> bankCards = userService.getBankCards(request.getCivilId());
+    public ResponseEntity<List<BankCardEntity>> getBankCards(@RequestHeader("Authorization") String authorizationHeader) {
+        // Check Authorization Header
+        if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
+            throw new IllegalArgumentException("Invalid Authorization header");
+        }
+
+        // Extract Token
+        String token = authorizationHeader.substring(7); // Remove "Bearer "
+        System.out.println("Extracted Token: " + token);
+
+        // Validate and Fetch Bank Cards
+        List<BankCardEntity> bankCards = userService.getBankCards(token);
         return ResponseEntity.ok(bankCards);
     }
+
+
 
     @GetMapping("/linked-cards")
     public ResponseEntity<List<BankCardEntity>> getLinkedCards(@RequestHeader("Authorization") String authorizationHeader) {
