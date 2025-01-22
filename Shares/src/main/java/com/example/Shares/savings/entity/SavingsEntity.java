@@ -1,43 +1,42 @@
-package com.example.Shares.wallet.entity;
+package com.example.Shares.savings.entity;
 
 import com.example.Shares.auth.entity.BankCardEntity;
 import com.example.Shares.hub.entity.HubEntity;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 
 import javax.persistence.*;
+import java.util.Date;
 import java.util.List;
 
 @Entity
-@Table(name = "wallets")
-public class WalletEntity {
+@Table(name = "savings")
+public class SavingsEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String name;
     private Double balance;
     private Boolean active;
+    private Date date;
+
+
+    @Enumerated(EnumType.STRING)
+    @Column
+    private SavingInstallments installments;
+
 
     @ManyToOne
     @JoinColumn(name = "hub_id", referencedColumnName = "id")
     @JsonBackReference
     private HubEntity hub;
 
+
     @OneToMany(cascade = CascadeType.ALL)
     private List<BankCardEntity> linkedCards;
 
 
-
-    private Boolean selected = false;
-
     // Getters and Setters
 
-    public Boolean getSelected() {
-        return selected;
-    }
-
-    public void setSelected(Boolean selected) {
-        this.selected = selected;
-    }
 
     public Long getId() {
         return id;
@@ -71,6 +70,22 @@ public class WalletEntity {
         this.active = active;
     }
 
+    public Date getDate() {
+        return date;
+    }
+
+    public void setDate(Date date) {
+        this.date = date;
+    }
+
+    public SavingInstallments getInstallments() {
+        return installments;
+    }
+
+    public void setInstallments(SavingInstallments installments) {
+        this.installments = installments;
+    }
+
     public HubEntity getHub() {
         return hub;
     }
@@ -86,6 +101,4 @@ public class WalletEntity {
     public void setLinkedCards(List<BankCardEntity> linkedCards) {
         this.linkedCards = linkedCards;
     }
-
-
 }

@@ -27,6 +27,13 @@ public class WalletController {
         walletService.createWallet(request, user);
         return ResponseEntity.ok("Wallet created");
     }
+//    @PostMapping("/select-wallet")
+//    public ResponseEntity<String> selectWallet(@RequestHeader("Authorization") String token, @RequestParam Long walletId) {
+//        String jwt = token.substring(7);
+//        UserEntity user = userService.getUserFromToken(jwt);
+//        walletService.selectWallet(user, walletId);
+//        return ResponseEntity.ok("Wallet selected successfully");
+//    }
 
 
 }
