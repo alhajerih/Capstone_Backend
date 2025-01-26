@@ -16,7 +16,6 @@ import org.springframework.stereotype.Service;
 import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Optional;
-
 @Service
 public class HubService {
 
@@ -62,6 +61,9 @@ public class HubService {
             selectedWallet.setBalance(selectedWallet.getBalance() - request.getAmount());
             linkedCard.setCardBalance(linkedCard.getCardBalance() - request.getAmount());
 
+            // Update the hub's total balance
+            hub.updateBalances();
+
             // Create a new transaction record
             TransactionsEntity transaction = new TransactionsEntity();
             transaction.setTransactionName(request.getTransactionName());
@@ -85,7 +87,6 @@ public class HubService {
         System.out.println("Transaction canceled due to insufficient funds in wallet.");
         return false;
     }
-
 
     public List<TransactionsEntity> getTransactionsForUser(UserEntity user) {
         HubEntity userHub = user.getHub();
@@ -127,6 +128,9 @@ public class HubService {
             selectedWallet.setBalance(selectedWallet.getBalance() - request.getAmount());
             linkedCard.setCardBalance(linkedCard.getCardBalance() - request.getAmount());
 
+            // Update the hub's total balance
+            hub.updateBalances();
+
             TransactionsEntity transaction = new TransactionsEntity();
             transaction.setTransactionName(request.getTransactionName());
             transaction.setAmount(request.getAmount());
@@ -136,9 +140,11 @@ public class HubService {
             // Add transaction only to the wallet, not the hub separately
             selectedWallet.getTransactions().add(transaction);
 
-            // Save the wallet (cascade takes care of transactions)
+            // Save the updated entities
             walletRepository.save(selectedWallet);
             cardBankRepository.save(linkedCard);
+            transactionsRepository.save(transaction);
+            hubRepository.save(hub);
 
             return true;
         }
@@ -146,9 +152,4 @@ public class HubService {
         System.out.println("Transaction canceled due to insufficient funds in wallet.");
         return false;
     }
-
-
-
-
-
 }

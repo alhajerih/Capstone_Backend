@@ -36,8 +36,11 @@ public class BankCardService {
         user.getBankCards().add(bankCard);
 
         cardBankRepository.save(bankCard);
-    }
 
+        // Update the hub balances after adding a new card
+        user.getHub().updateBalances();
+        hubRepository.save(user.getHub());
+    }
 
     public void addCardToHub(AddCardToHubRequest request, UserEntity user) {
         Optional<BankCardEntity> bankCardOptional = cardBankRepository.findByCardNumber(request.getCardNumber());
@@ -54,11 +57,15 @@ public class BankCardService {
                 hub.setLinkedCards(new ArrayList<>());
             }
 
+            // Link the card to the hub and update balance
             bankCard.setSelected(true);
-
             bankCard.setHub(hub);
             hub.getLinkedCards().add(bankCard);
 
+            // Update the hub's total balances
+            hub.updateBalances();
+
+            // Save the updated entities
             cardBankRepository.save(bankCard);
             hubRepository.save(hub);
         } else {
@@ -78,9 +85,13 @@ public class BankCardService {
             }
 
             if (hub.getLinkedCards() != null && hub.getLinkedCards().contains(bankCard)) {
-                hub.getLinkedCards().remove(bankCard);  // Remove the card from the hub's linked list
-                bankCard.setHub(null);  // Unlink the bank card from the hub
-                bankCard.setSelected(false);  // Set selected to false
+                // Remove the card from the hub's linked list
+                hub.getLinkedCards().remove(bankCard);
+                bankCard.setHub(null);
+                bankCard.setSelected(false);
+
+                // Update the hub's total balances after removal
+                hub.updateBalances();
 
                 // Save the updated entities
                 cardBankRepository.save(bankCard);
@@ -92,6 +103,4 @@ public class BankCardService {
             throw new IllegalArgumentException("Invalid card number provided.");
         }
     }
-
-
 }

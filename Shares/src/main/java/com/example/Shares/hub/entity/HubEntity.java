@@ -6,20 +6,25 @@ import com.example.Shares.transactions.entity.TransactionsEntity;
 import com.example.Shares.wallet.entity.WalletEntity;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
-
 import javax.persistence.*;
+import java.security.SecureRandom;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
 @Table(name = "hub")
 public class HubEntity {
+    private static final SecureRandom RANDOM = new SecureRandom();
+    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("MM/yy");
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private Boolean isActive;
-    private Double savingsBalance;
-    private Double checkingsBalance;
+    private Double savingsBalance = 0.0;
+    private Double checkingsBalance = 0.0;
     private String hubCardNumber;
     private String expDate;
     private String cvv;
@@ -33,14 +38,76 @@ public class HubEntity {
     @JsonManagedReference
     private List<WalletEntity> wallets = new ArrayList<>();
 
-
-
     @OneToMany(mappedBy = "hub", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
     private List<TransactionsEntity> transactions = new ArrayList<>();
 
-    @OneToMany(cascade = CascadeType.ALL)
-    private List<BankCardEntity> linkedCards;
+    @OneToMany(mappedBy = "hub", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<BankCardEntity> linkedCards = new ArrayList<>();
+
+    // Generate random values before saving or updating the entity
+    @PrePersist
+    @PreUpdate
+    public void generateHubDetails() {
+        if (hubCardNumber == null || hubCardNumber.isEmpty()) {
+            hubCardNumber = generateRandomNumber(16);  // Generate 16-digit card number
+        }
+
+        if (cvv == null || cvv.isEmpty()) {
+            cvv = generateRandomNumber(3);  // Generate 3-digit CVV number
+        }
+
+        if (expDate == null || expDate.isEmpty()) {
+            expDate = generateExpirationDate();  // Generate expiration date
+        }
+    }
+
+    // Method to generate random numeric strings
+    private String generateRandomNumber(int length) {
+        StringBuilder number = new StringBuilder();
+        for (int i = 0; i < length; i++) {
+            number.append(RANDOM.nextInt(10));  // Append random digit (0-9)
+        }
+        return number.toString();
+    }
+
+    // Method to generate an expiration date (current month + 5 years)
+    private String generateExpirationDate() {
+        LocalDate currentDate = LocalDate.now();
+        LocalDate expirationDate = currentDate.plusYears(5);
+        return expirationDate.format(DATE_FORMATTER);
+    }
+
+    public void updateBalances() {
+        savingsBalance = linkedCards.stream()
+                .filter(card -> "savings".equalsIgnoreCase(card.getCardType()))
+                .mapToDouble(BankCardEntity::getCardBalance)
+                .sum();
+
+        checkingsBalance = linkedCards.stream()
+                .filter(card -> "checking".equalsIgnoreCase(card.getCardType()))
+                .mapToDouble(BankCardEntity::getCardBalance)
+                .sum();
+    }
+
+    public void addLinkedCard(BankCardEntity card) {
+        this.linkedCards.add(card);
+        card.setHub(this);
+        updateBalances();
+    }
+
+    public void removeLinkedCard(BankCardEntity card) {
+        this.linkedCards.remove(card);
+        card.setHub(null);
+        updateBalances();
+    }
+
+    public void addTransaction(TransactionsEntity transaction) {
+        if (transactions == null) {
+            transactions = new ArrayList<>();
+        }
+        transactions.add(transaction);
+    }
 
     // Getters and Setters
 
@@ -130,12 +197,5 @@ public class HubEntity {
 
     public void setTransactions(List<TransactionsEntity> transactions) {
         this.transactions = transactions;
-    }
-
-    public void addTransaction(TransactionsEntity transaction) {
-        if (transactions == null) {
-            transactions = new ArrayList<>();
-        }
-        transactions.add(transaction);
     }
 }

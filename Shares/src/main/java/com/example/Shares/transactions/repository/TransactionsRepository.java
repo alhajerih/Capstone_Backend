@@ -11,6 +11,7 @@ import java.util.List;
 public interface TransactionsRepository extends JpaRepository<TransactionsEntity, Long> {
 //    List<BankCardEntity> findByUserId(Long userId);
     List<TransactionsEntity> findByHub(HubEntity hub);
+//    List<TransactionsEntity> findByHubOrderByTimestampDesc(HubEntity hub);
 
 
 }
