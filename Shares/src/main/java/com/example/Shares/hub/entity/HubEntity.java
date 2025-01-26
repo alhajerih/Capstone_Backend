@@ -22,7 +22,7 @@ public class HubEntity {
     private Double checkingsBalance;
     private String hubCardNumber;
     private String expDate;
-    private Double cvv;
+    private String cvv;
 
     @OneToOne
     @JoinColumn(name = "user_id", nullable = false)
@@ -92,11 +92,11 @@ public class HubEntity {
         this.expDate = expDate;
     }
 
-    public Double getCvv() {
+    public String getCvv() {
         return cvv;
     }
 
-    public void setCvv(Double cvv) {
+    public void setCvv(String cvv) {
         this.cvv = cvv;
     }
 

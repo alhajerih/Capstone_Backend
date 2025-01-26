@@ -2,6 +2,7 @@ package com.example.Shares.hub.controller;
 
 import com.example.Shares.auth.entity.UserEntity;
 import com.example.Shares.auth.service.UserService;
+import com.example.Shares.hub.bo.HubCardPaymentRequest;
 import com.example.Shares.hub.bo.PaymentRequest;
 import com.example.Shares.hub.service.HubService;
 import com.example.Shares.wallet.bo.CreateWalletRequest;
@@ -38,7 +39,16 @@ public class HubController {
             return ResponseEntity.badRequest().body("Transaction failed due to insufficient funds or other issues.");
         }
     }
+    @PostMapping("/pay-with-hubcard")
+    public ResponseEntity<String> payWithHubCard(@RequestBody HubCardPaymentRequest request) {
+        boolean success = hubService.processPaymentByHubCard(request);
 
+        if (success) {
+            return ResponseEntity.ok("Payment successful and recorded.");
+        } else {
+            return ResponseEntity.badRequest().body("Payment failed. Please check details and try again.");
+        }
+    }
 
 }
 

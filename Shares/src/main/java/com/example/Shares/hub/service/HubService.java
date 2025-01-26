@@ -2,6 +2,7 @@ package com.example.Shares.hub.service;
 import com.example.Shares.auth.entity.BankCardEntity;
 import com.example.Shares.auth.entity.UserEntity;
 import com.example.Shares.auth.repository.BankCardRepository;
+import com.example.Shares.hub.bo.HubCardPaymentRequest;
 import com.example.Shares.hub.bo.PaymentRequest;
 import com.example.Shares.hub.entity.HubEntity;
 import com.example.Shares.hub.repository.HubRepository;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class HubService {
@@ -89,5 +91,64 @@ public class HubService {
         HubEntity userHub = user.getHub();
         return transactionsRepository.findByHub(userHub);
     }
+
+    @Transactional
+    public boolean processPaymentByHubCard(HubCardPaymentRequest request) {
+        // Find the hub by the provided hubCardNumber
+        Optional<HubEntity> hubOptional = hubRepository.findByHubCardNumber(request.getHubCardNumber());
+
+        if (!hubOptional.isPresent()) {
+            System.out.println("Transaction failed: No hub found with the provided card number.");
+            return false;
+        }
+
+        HubEntity hub = hubOptional.get();
+
+        WalletEntity selectedWallet = hub.getWallets().stream()
+                .filter(WalletEntity::getSelected)
+                .findFirst()
+                .orElse(null);
+
+        if (selectedWallet == null) {
+            System.out.println("Transaction canceled due to no selected wallet.");
+            return false;
+        }
+
+        BankCardEntity linkedCard = selectedWallet.getLinkedCards().stream()
+                .findFirst()
+                .orElse(null);
+
+        if (linkedCard == null) {
+            System.out.println("Transaction canceled due to no linked card.");
+            return false;
+        }
+
+        if (selectedWallet.getBalance() >= request.getAmount()) {
+            selectedWallet.setBalance(selectedWallet.getBalance() - request.getAmount());
+            linkedCard.setCardBalance(linkedCard.getCardBalance() - request.getAmount());
+
+            TransactionsEntity transaction = new TransactionsEntity();
+            transaction.setTransactionName(request.getTransactionName());
+            transaction.setAmount(request.getAmount());
+            transaction.setWalletUsed(selectedWallet);
+            transaction.setHub(hub);
+
+            // Add transaction only to the wallet, not the hub separately
+            selectedWallet.getTransactions().add(transaction);
+
+            // Save the wallet (cascade takes care of transactions)
+            walletRepository.save(selectedWallet);
+            cardBankRepository.save(linkedCard);
+
+            return true;
+        }
+
+        System.out.println("Transaction canceled due to insufficient funds in wallet.");
+        return false;
+    }
+
+
+
+
 
 }

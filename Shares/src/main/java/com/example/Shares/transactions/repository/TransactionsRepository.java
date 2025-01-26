@@ -12,6 +12,7 @@ public interface TransactionsRepository extends JpaRepository<TransactionsEntity
 //    List<BankCardEntity> findByUserId(Long userId);
     List<TransactionsEntity> findByHub(HubEntity hub);
 
+
 }
 
 
