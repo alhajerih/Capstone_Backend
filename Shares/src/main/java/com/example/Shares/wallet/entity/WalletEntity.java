@@ -2,7 +2,9 @@ package com.example.Shares.wallet.entity;
 
 import com.example.Shares.auth.entity.BankCardEntity;
 import com.example.Shares.hub.entity.HubEntity;
+import com.example.Shares.transactions.entity.TransactionsEntity;
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import javax.persistence.*;
 import java.util.List;
@@ -13,31 +15,26 @@ public class WalletEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     private String name;
     private Double balance;
     private Boolean active;
+    private Boolean selected = false; // Determines if the wallet is selected for transactions
 
     @ManyToOne
     @JoinColumn(name = "hub_id", referencedColumnName = "id")
     @JsonBackReference
     private HubEntity hub;
 
-    @OneToMany(cascade = CascadeType.ALL)
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "wallet_id")
     private List<BankCardEntity> linkedCards;
 
-
-
-    private Boolean selected = false;
+    @OneToMany(mappedBy = "walletUsed", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @JsonManagedReference
+    private List<TransactionsEntity> transactions;
 
     // Getters and Setters
-
-    public Boolean getSelected() {
-        return selected;
-    }
-
-    public void setSelected(Boolean selected) {
-        this.selected = selected;
-    }
 
     public Long getId() {
         return id;
@@ -87,5 +84,19 @@ public class WalletEntity {
         this.linkedCards = linkedCards;
     }
 
+    public Boolean getSelected() {
+        return selected;
+    }
 
+    public void setSelected(Boolean selected) {
+        this.selected = selected;
+    }
+
+    public List<TransactionsEntity> getTransactions() {
+        return transactions;
+    }
+
+    public void setTransactions(List<TransactionsEntity> transactions) {
+        this.transactions = transactions;
+    }
 }

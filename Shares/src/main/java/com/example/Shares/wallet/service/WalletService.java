@@ -44,22 +44,22 @@ public class WalletService {
         walletRepository.save(wallet);
     }
 
-//    @Transactional
-//    public void selectWallet(UserEntity user, Long walletId) {
-//        HubEntity hub = user.getHub();
-//
-//        // Deselect any previously selected wallet
-//        hub.getWallets().forEach(wallet -> wallet.setSelected(false));
-//
-//        // Find and select the new wallet
-//        WalletEntity selectedWallet = hub.getWallets().stream()
-//                .filter(wallet -> wallet.getId().equals(walletId))
-//                .findFirst()
-//                .orElseThrow(() -> new IllegalArgumentException("Wallet not found"));
-//
-//        selectedWallet.setSelected(true);
-//        walletRepository.saveAll(hub.getWallets());
-//    }
+    @Transactional
+    public void selectWallet(UserEntity user, Long walletId) {
+        HubEntity hub = user.getHub();
+
+        // Deselect any previously selected wallet
+        hub.getWallets().forEach(wallet -> wallet.setSelected(false));
+
+        // Find and select the new wallet
+        WalletEntity selectedWallet = hub.getWallets().stream()
+                .filter(wallet -> wallet.getId().equals(walletId))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("Wallet not found"));
+
+        selectedWallet.setSelected(true);
+        walletRepository.saveAll(hub.getWallets());
+    }
 //    public boolean processTransaction(UserEntity user, double amount) {
 //        WalletEntity selectedWallet = user.getHub().getWallets().stream()
 //                .filter(WalletEntity::getSelected)
@@ -75,3 +75,4 @@ public class WalletService {
 //        }
 //    }
 }
+

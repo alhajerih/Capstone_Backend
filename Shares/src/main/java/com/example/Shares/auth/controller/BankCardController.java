@@ -19,7 +19,7 @@ public class BankCardController {
     @Autowired
     private UserService userService;
 
-    @PostMapping("/create-band-card")
+    @PostMapping("/create-bank-card")
     public ResponseEntity<String> createNewWallet(@RequestHeader("Authorization") String token, @RequestBody BankCardRequest request) {
 
         String jwt = token.substring(7); // Remove "Bearer " prefix

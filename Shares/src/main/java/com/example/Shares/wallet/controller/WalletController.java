@@ -8,6 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+
 @RestController
 @RequestMapping("/api/user")
 public class WalletController {
@@ -27,13 +29,20 @@ public class WalletController {
         walletService.createWallet(request, user);
         return ResponseEntity.ok("Wallet created");
     }
-//    @PostMapping("/select-wallet")
-//    public ResponseEntity<String> selectWallet(@RequestHeader("Authorization") String token, @RequestParam Long walletId) {
-//        String jwt = token.substring(7);
-//        UserEntity user = userService.getUserFromToken(jwt);
-//        walletService.selectWallet(user, walletId);
-//        return ResponseEntity.ok("Wallet selected successfully");
-//    }
+    @PostMapping("/select-wallet")
+    public ResponseEntity<String> selectWallet(@RequestHeader("Authorization") String token, @RequestBody Map<String, Long> requestBody) {
+        String jwt = token.substring(7);
+        UserEntity user = userService.getUserFromToken(jwt);
+
+        Long walletId = requestBody.get("walletId");
+        if (walletId == null) {
+            return ResponseEntity.badRequest().body("Wallet ID is required.");
+        }
+
+        walletService.selectWallet(user, walletId);
+        return ResponseEntity.ok("Wallet selected successfully");
+    }
+
 
 
 }

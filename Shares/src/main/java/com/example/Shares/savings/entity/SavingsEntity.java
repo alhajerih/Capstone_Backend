@@ -1,104 +1,104 @@
-package com.example.Shares.savings.entity;
-
-import com.example.Shares.auth.entity.BankCardEntity;
-import com.example.Shares.hub.entity.HubEntity;
-import com.fasterxml.jackson.annotation.JsonBackReference;
-
-import javax.persistence.*;
-import java.util.Date;
-import java.util.List;
-
-@Entity
-@Table(name = "savings")
-public class SavingsEntity {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-    private String name;
-    private Double balance;
-    private Boolean active;
-    private Date date;
-
-
-    @Enumerated(EnumType.STRING)
-    @Column
-    private SavingInstallments installments;
-
-
-    @ManyToOne
-    @JoinColumn(name = "hub_id", referencedColumnName = "id")
-    @JsonBackReference
-    private HubEntity hub;
-
-
-    @OneToMany(cascade = CascadeType.ALL)
-    private List<BankCardEntity> linkedCards;
-
-
-    // Getters and Setters
-
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public Double getBalance() {
-        return balance;
-    }
-
-    public void setBalance(Double balance) {
-        this.balance = balance;
-    }
-
-    public Boolean getActive() {
-        return active;
-    }
-
-    public void setActive(Boolean active) {
-        this.active = active;
-    }
-
-    public Date getDate() {
-        return date;
-    }
-
-    public void setDate(Date date) {
-        this.date = date;
-    }
-
-    public SavingInstallments getInstallments() {
-        return installments;
-    }
-
-    public void setInstallments(SavingInstallments installments) {
-        this.installments = installments;
-    }
-
-    public HubEntity getHub() {
-        return hub;
-    }
-
-    public void setHub(HubEntity hub) {
-        this.hub = hub;
-    }
-
-    public List<BankCardEntity> getLinkedCards() {
-        return linkedCards;
-    }
-
-    public void setLinkedCards(List<BankCardEntity> linkedCards) {
-        this.linkedCards = linkedCards;
-    }
-}
+//package com.example.Shares.savings.entity;
+//
+//import com.example.Shares.auth.entity.BankCardEntity;
+//import com.example.Shares.hub.entity.HubEntity;
+//import com.fasterxml.jackson.annotation.JsonBackReference;
+//
+//import javax.persistence.*;
+//import java.util.Date;
+//import java.util.List;
+//
+//@Entity
+//@Table(name = "savings")
+//public class SavingsEntity {
+//    @Id
+//    @GeneratedValue(strategy = GenerationType.IDENTITY)
+//    private Long id;
+//    private String name;
+//    private Double balance;
+//    private Boolean active;
+//    private Date date;
+//
+//
+//    @Enumerated(EnumType.STRING)
+//    @Column
+//    private SavingInstallments installments;
+//
+//
+//    @ManyToOne
+//    @JoinColumn(name = "hub_id", referencedColumnName = "id")
+//    @JsonBackReference
+//    private HubEntity hub;
+//
+//
+//    @OneToMany(cascade = CascadeType.ALL)
+//    private List<BankCardEntity> linkedCards;
+//
+//
+//    // Getters and Setters
+//
+//
+//    public Long getId() {
+//        return id;
+//    }
+//
+//    public void setId(Long id) {
+//        this.id = id;
+//    }
+//
+//    public String getName() {
+//        return name;
+//    }
+//
+//    public void setName(String name) {
+//        this.name = name;
+//    }
+//
+//    public Double getBalance() {
+//        return balance;
+//    }
+//
+//    public void setBalance(Double balance) {
+//        this.balance = balance;
+//    }
+//
+//    public Boolean getActive() {
+//        return active;
+//    }
+//
+//    public void setActive(Boolean active) {
+//        this.active = active;
+//    }
+//
+//    public Date getDate() {
+//        return date;
+//    }
+//
+//    public void setDate(Date date) {
+//        this.date = date;
+//    }
+//
+//    public SavingInstallments getInstallments() {
+//        return installments;
+//    }
+//
+//    public void setInstallments(SavingInstallments installments) {
+//        this.installments = installments;
+//    }
+//
+//    public HubEntity getHub() {
+//        return hub;
+//    }
+//
+//    public void setHub(HubEntity hub) {
+//        this.hub = hub;
+//    }
+//
+//    public List<BankCardEntity> getLinkedCards() {
+//        return linkedCards;
+//    }
+//
+//    public void setLinkedCards(List<BankCardEntity> linkedCards) {
+//        this.linkedCards = linkedCards;
+//    }
+//}

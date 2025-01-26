@@ -2,7 +2,7 @@ package com.example.Shares.hub.entity;
 
 import com.example.Shares.auth.entity.BankCardEntity;
 import com.example.Shares.auth.entity.UserEntity;
-import com.example.Shares.savings.entity.SavingsEntity;
+import com.example.Shares.transactions.entity.TransactionsEntity;
 import com.example.Shares.wallet.entity.WalletEntity;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
@@ -23,25 +23,42 @@ public class HubEntity {
     private String hubCardNumber;
     private String expDate;
     private Double cvv;
-    //private WalletEntity selectedWallet;
+
     @OneToOne
     @JoinColumn(name = "user_id", nullable = false)
     @JsonBackReference
     private UserEntity user;
 
-
     @OneToMany(mappedBy = "hub", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     @JsonManagedReference
     private List<WalletEntity> wallets = new ArrayList<>();
 
-    @OneToMany(mappedBy = "hub", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+
+
+    @OneToMany(mappedBy = "hub", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
-    private List<SavingsEntity> savings = new ArrayList<>();
+    private List<TransactionsEntity> transactions = new ArrayList<>();
 
     @OneToMany(cascade = CascadeType.ALL)
     private List<BankCardEntity> linkedCards;
 
     // Getters and Setters
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public Boolean getActive() {
+        return isActive;
+    }
+
+    public void setActive(Boolean active) {
+        isActive = active;
+    }
 
     public Double getSavingsBalance() {
         return savingsBalance;
@@ -83,38 +100,6 @@ public class HubEntity {
         this.cvv = cvv;
     }
 
-    public List<SavingsEntity> getSavings() {
-        return savings;
-    }
-
-    public void setSavings(List<SavingsEntity> savings) {
-        this.savings = savings;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public Double getBalance() {
-        return balance;
-    }
-
-    public void setBalance(Double balance) {
-        this.balance = balance;
-    }
-
-    public Boolean getActive() {
-        return isActive;
-    }
-
-    public void setActive(Boolean active) {
-        isActive = active;
-    }
-
     public UserEntity getUser() {
         return user;
     }
@@ -137,5 +122,20 @@ public class HubEntity {
 
     public void setLinkedCards(List<BankCardEntity> linkedCards) {
         this.linkedCards = linkedCards;
+    }
+
+    public List<TransactionsEntity> getTransactions() {
+        return transactions;
+    }
+
+    public void setTransactions(List<TransactionsEntity> transactions) {
+        this.transactions = transactions;
+    }
+
+    public void addTransaction(TransactionsEntity transaction) {
+        if (transactions == null) {
+            transactions = new ArrayList<>();
+        }
+        transactions.add(transaction);
     }
 }
