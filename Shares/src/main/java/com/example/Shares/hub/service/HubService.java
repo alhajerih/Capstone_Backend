@@ -1,4 +1,5 @@
 package com.example.Shares.hub.service;
+
 import com.example.Shares.auth.entity.BankCardEntity;
 import com.example.Shares.auth.entity.UserEntity;
 import com.example.Shares.auth.repository.BankCardRepository;
@@ -14,8 +15,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+
 @Service
 public class HubService {
 
@@ -70,15 +73,14 @@ public class HubService {
             transaction.setAmount(request.getAmount());
             transaction.setWalletUsed(selectedWallet);
             transaction.setHub(hub);
+            transaction.setTransactionTime(LocalDateTime.now());
 
-            // Save transaction to the hub and wallet
-            hub.addTransaction(transaction);
-            selectedWallet.getTransactions().add(transaction);
+            // Save transaction only once
+            transactionsRepository.save(transaction);
 
             // Save the updated entities
             walletRepository.save(selectedWallet);
             cardBankRepository.save(linkedCard);
-            transactionsRepository.save(transaction);
             hubRepository.save(hub);
 
             return true;
@@ -136,14 +138,14 @@ public class HubService {
             transaction.setAmount(request.getAmount());
             transaction.setWalletUsed(selectedWallet);
             transaction.setHub(hub);
+            transaction.setTransactionTime(LocalDateTime.now());
 
-            // Add transaction only to the wallet, not the hub separately
-            selectedWallet.getTransactions().add(transaction);
+            // Save transaction only once
+            transactionsRepository.save(transaction);
 
             // Save the updated entities
             walletRepository.save(selectedWallet);
             cardBankRepository.save(linkedCard);
-            transactionsRepository.save(transaction);
             hubRepository.save(hub);
 
             return true;
