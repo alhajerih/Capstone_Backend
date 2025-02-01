@@ -31,7 +31,7 @@ public class HubController {
         String jwt = token.substring(7); // Remove "Bearer " prefix
 
         UserEntity currentUser = userService.getUserFromToken(jwt);
-        boolean success = hubService.processPaymentWithCancellation(currentUser, request);
+        boolean success = hubService.processPaymentWithChecking(currentUser, request);
 
         if (success) {
             return ResponseEntity.ok("Transaction successful and recorded.");

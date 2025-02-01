@@ -43,6 +43,19 @@ public class WalletController {
         return ResponseEntity.ok("Wallet selected successfully");
     }
 
+    @PostMapping("/deselect-wallet")
+    public ResponseEntity<String> deselectAllWallets(@RequestHeader("Authorization") String token) {
+        String jwt = token.substring(7);
+
+        UserEntity user = userService.getUserFromToken(jwt);
+        if (user == null) {
+            return ResponseEntity.badRequest().body("Invalid token or user not found.");
+        }
+
+        walletService.deselectAllWallets(user);
+
+        return ResponseEntity.ok("All wallets have been deselected successfully.");
+    }
 
 
 }

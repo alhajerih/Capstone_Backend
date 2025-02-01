@@ -3,6 +3,7 @@ package com.example.Shares.wallet.service;
 import com.example.Shares.auth.entity.BankCardEntity;
 import com.example.Shares.auth.entity.UserEntity;
 import com.example.Shares.hub.entity.HubEntity;
+import com.example.Shares.hub.repository.HubRepository;
 import com.example.Shares.wallet.bo.CreateWalletRequest;
 import com.example.Shares.wallet.entity.WalletEntity;
 import com.example.Shares.wallet.repository.WalletRepository;
@@ -17,6 +18,9 @@ public class WalletService {
 
     @Autowired
     private WalletRepository walletRepository;
+
+    @Autowired
+    private HubRepository hubRepository;
 
     @Transactional
     public void createWallet(CreateWalletRequest request, UserEntity user) {
@@ -74,5 +78,24 @@ public class WalletService {
 //            return false; // Insufficient funds or no selected wallet
 //        }
 //    }
+
+
+
+
+    @Transactional
+    public void deselectAllWallets(UserEntity user) {
+        // Retrieve the HubEntity from the user
+        HubEntity hub = user.getHub();
+        if (hub == null) {
+            throw new IllegalStateException("User does not have an associated Hub.");
+        }
+
+        // Deselect any previously selected wallet
+        hub.getWallets().forEach(wallet -> wallet.setSelected(false));
+
+        // Persist changes
+        walletRepository.saveAll(hub.getWallets());
+        hubRepository.save(hub);
+    }
 }
 
