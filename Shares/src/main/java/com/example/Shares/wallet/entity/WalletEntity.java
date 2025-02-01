@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -26,9 +27,15 @@ public class WalletEntity {
     @JsonBackReference
     private HubEntity hub;
 
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "wallet_id")
-    private List<BankCardEntity> linkedCards;
+    @ManyToMany
+    @JsonManagedReference
+    @JoinTable(
+            name = "wallets_cards",
+            joinColumns = @JoinColumn(name = "wallet_id"),
+            inverseJoinColumns = @JoinColumn(name = "card_id")
+    )
+    private List<BankCardEntity> linkedCards = new ArrayList<>();
+
 
     @OneToMany(mappedBy = "walletUsed", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @JsonManagedReference

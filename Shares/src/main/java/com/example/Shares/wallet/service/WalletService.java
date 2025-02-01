@@ -29,17 +29,18 @@ public class WalletService {
         wallet.setBalance(request.getBalance());
         wallet.setHub(user.getHub());  // Associate the wallet with the user's hub
 
-        String cardNumber = request.getCardNumber();  // Get card number from request
+        // The new wallet has an empty 'linkedCards' list by default
 
+        String cardNumber = request.getCardNumber();
+
+        // Look for the card in user's hub
         BankCardEntity linkedCard = user.getHub().getLinkedCards().stream()
                 .filter(card -> card.getCardNumber() != null && card.getCardNumber().equals(cardNumber))
                 .findFirst()
                 .orElse(null);
 
         if (linkedCard != null) {
-            if (wallet.getLinkedCards() == null) {
-                wallet.setLinkedCards(new ArrayList<>());
-            }
+            // Just add it to the wallet's linkedCards
             wallet.getLinkedCards().add(linkedCard);
         } else {
             throw new IllegalArgumentException("The provided card is not linked to the hub.");

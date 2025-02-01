@@ -1,10 +1,13 @@
 package com.example.Shares.auth.entity;
 
 import com.example.Shares.hub.entity.HubEntity;
+import com.example.Shares.wallet.entity.WalletEntity;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 
 import javax.persistence.*;
 import java.security.SecureRandom;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 public class BankCardEntity {
@@ -27,6 +30,9 @@ public class BankCardEntity {
     @JsonBackReference // Prevent infinite recursion
     private HubEntity hub;
     private boolean selected = false;
+    @ManyToMany(mappedBy = "linkedCards")
+    @JsonBackReference
+    private List<WalletEntity> wallets = new ArrayList<>();
 
     // Generate account number and card number
     @PrePersist
@@ -49,6 +55,15 @@ public class BankCardEntity {
     }
 
     // Getters and Setters
+
+    public List<WalletEntity> getWallets() {
+        return wallets;
+    }
+
+    public void setWallets(List<WalletEntity> wallets) {
+        this.wallets = wallets;
+    }
+
     public String getAccountNumber() {
         return accountNumber;
     }
