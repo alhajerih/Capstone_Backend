@@ -4,6 +4,7 @@ public class BankCardRequest {
     private String bankName;
     private Double balance;
     private String cardType;
+    private Boolean salaryAccount;
 
     public String getBankName() {
         return bankName;
@@ -27,5 +28,13 @@ public class BankCardRequest {
 
     public void setCardType(String cardType) {
         this.cardType = cardType;
+    }
+
+    public Boolean getSalaryAccount() {
+        return salaryAccount;
+    }
+
+    public void setSalaryAccount(Boolean salaryAccount) {
+        this.salaryAccount = salaryAccount;
     }
 }

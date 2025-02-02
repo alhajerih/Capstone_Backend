@@ -34,6 +34,7 @@ public class BankCardEntity {
     @JsonBackReference
     private List<WalletEntity> wallets = new ArrayList<>();
 
+    private Boolean salaryAccount;
     // Generate account number and card number
     @PrePersist
     @PreUpdate
@@ -55,6 +56,14 @@ public class BankCardEntity {
     }
 
     // Getters and Setters
+
+    public Boolean getSalaryAccount() {
+        return salaryAccount;
+    }
+
+    public void setSalaryAccount(Boolean salaryAccount) {
+        this.salaryAccount = salaryAccount;
+    }
 
     public List<WalletEntity> getWallets() {
         return wallets;

@@ -29,6 +29,7 @@ public class BankCardService {
         bankCard.setCardType(request.getCardType());
         bankCard.setUser(user);
         bankCard.setHub(user.getHub());
+        bankCard.setSalaryAccount(request.getSalaryAccount());
 
         if (user.getBankCards() == null) {
             user.setBankCards(new ArrayList<>());
