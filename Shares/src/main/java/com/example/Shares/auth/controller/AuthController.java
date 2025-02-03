@@ -1,5 +1,6 @@
 package com.example.Shares.auth.controller;
 
+import com.example.Shares.auth.bo.LoginResponse;
 import com.example.Shares.auth.bo.auth.CreateLoginRequest;
 import com.example.Shares.auth.bo.otp.GenerateOtpRequest;
 import com.example.Shares.auth.bo.otp.RegisterUserRequest;
@@ -41,10 +42,13 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestBody CreateLoginRequest loginRequest) {
+    public LoginResponse login(@RequestBody CreateLoginRequest loginRequest) {
         // Authenticate the user and generate a token
         String token = userService.login(loginRequest.getUsername(), loginRequest.getPassword());
-        return ResponseEntity.ok(token);
+        LoginResponse loginResponse = new LoginResponse();
+        loginResponse.setToken(token);
+
+        return loginResponse;
     }
 
 
