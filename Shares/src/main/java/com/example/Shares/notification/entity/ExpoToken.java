@@ -36,4 +36,12 @@ public class ExpoToken {
     public void setToken(String token) {
         this.token = token;
     }
+
+    public UserEntity getUser() {
+        return user;
+    }
+
+    public void setUser(UserEntity user) {
+        this.user = user;
+    }
 }

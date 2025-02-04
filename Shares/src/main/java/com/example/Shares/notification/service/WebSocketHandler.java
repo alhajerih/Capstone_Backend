@@ -36,14 +36,12 @@ public class WebSocketHandler extends TextWebSocketHandler {
         String payload = message.getPayload();
 
         //Retrieve the expo push token from the table
-        Optional<ExpoToken> tokenEntry;
-        tokenEntry= expoTokenRepository.findTopByOrderByIdDesc();
-
+        Optional<ExpoToken> tokenEntry= expoTokenRepository.findTopByOrderByIdDesc();
 
 
         if(tokenEntry.isPresent()){
             String expoPushToken = tokenEntry.get().getToken();
-
+            notificationService.sendPushNotification(expoPushToken,payload);
             if(expoPushToken == null || expoPushToken.isEmpty()){
                 System.out.println("No valid Expo Push Token found");
             }else{

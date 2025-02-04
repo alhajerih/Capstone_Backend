@@ -135,7 +135,9 @@ public class SecurityConfig extends org.springframework.security.config.annotati
                         "/swagger-ui/**",
                         "/v3/api-docs",
                         "/swagger-resources/**",
-                        "/webjars/**"
+                        "/webjars/**",
+                        "/ws/**",
+                        "/api/setup/**"
                 ).permitAll()
                 .antMatchers(AUTH_PATH + "/login", AUTH_PATH + "/generate-otp", AUTH_PATH + "/validate-otp", AUTH_PATH + "/register").permitAll()
                 .anyRequest().authenticated()

@@ -11,4 +11,5 @@ import java.util.Optional;
 public interface ExpoTokenRepository extends JpaRepository<ExpoToken,Long> {
     Optional<ExpoToken> findByToken(String token);
     Optional<ExpoToken> findTopByOrderByIdDesc();
+    Optional<ExpoToken>findByUserId(Long userId);
 }
