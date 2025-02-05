@@ -5,12 +5,28 @@ public class CreateWalletRequest {
 
     private String name;
     private Double balance;
-    //private Boolean active;
-//    private BankCardEntity chosenCard;
     private String cardNumber;  // New field for card number
+    private Long cardThemeId;
+    private String category;
 
     public CreateWalletRequest() {
         //Default constructor
+    }
+
+    public Long getCardThemeId() {
+        return cardThemeId;
+    }
+
+    public void setCardThemeId(Long cardThemeId) {
+        this.cardThemeId = cardThemeId;
+    }
+
+    public String getCategory() {
+        return category;
+    }
+
+    public void setCategory(String category) {
+        this.category = category;
     }
 
     public String getCardNumber() {
