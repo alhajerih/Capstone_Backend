@@ -134,10 +134,12 @@ public class SecurityConfig extends org.springframework.security.config.annotati
                         "/swagger-ui.html",
                         "/swagger-ui/**",
                         "/v3/api-docs",
+                        "/api-docs/**",
                         "/swagger-resources/**",
                         "/webjars/**",
                         "/ws/**",
-                        "/api/setup/**"
+                        "/api/setup/**",
+                        "/api/user/pay-with-hubcard"
                 ).permitAll()
                 .antMatchers(AUTH_PATH + "/login", AUTH_PATH + "/generate-otp", AUTH_PATH + "/validate-otp", AUTH_PATH + "/register").permitAll()
                 .anyRequest().authenticated()

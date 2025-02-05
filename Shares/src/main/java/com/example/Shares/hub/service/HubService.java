@@ -7,6 +7,7 @@ import com.example.Shares.hub.bo.HubCardPaymentRequest;
 import com.example.Shares.hub.bo.PaymentRequest;
 import com.example.Shares.hub.entity.HubEntity;
 import com.example.Shares.hub.repository.HubRepository;
+import com.example.Shares.notification.service.NotificationService;
 import com.example.Shares.transactions.entity.TransactionsEntity;
 import com.example.Shares.transactions.repository.TransactionsRepository;
 import com.example.Shares.wallet.entity.WalletEntity;
@@ -36,6 +37,11 @@ public class HubService {
 
     @Autowired
     private TransactionsRepository transactionsRepository;
+private final NotificationService notificationService;
+
+    public HubService(NotificationService notificationService) {
+        this.notificationService = notificationService;
+    }
 
     @Transactional
     public boolean processPaymentWithChecking(UserEntity user, PaymentRequest request) {
@@ -101,6 +107,7 @@ public class HubService {
             List<BankCardEntity> checkingCards = hub.getLinkedCards().stream()
                     .filter(card -> "checking".equalsIgnoreCase(card.getCardType()))
                     .collect(Collectors.toList());
+
 
             // Edge case: No checking cards at all
             if (checkingCards.isEmpty()) {
@@ -210,6 +217,8 @@ public class HubService {
                 .findFirst()
                 .orElse(null);
 
+        boolean transactionSuccessful = false; // Track if payment succeeded
+
         // -------------------------------------------------------------------------
         // CASE A: A wallet is selected -> Use existing single-wallet logic
         // -------------------------------------------------------------------------
@@ -246,9 +255,11 @@ public class HubService {
                 cardBankRepository.save(linkedCard);
                 hubRepository.save(hub);
 
-                return true;
+                transactionSuccessful = true; // Payment succeeded
             } else {
                 System.out.println("Transaction canceled: insufficient funds in the selected wallet.");
+                // SEND FAILURE NOTIFICATION
+                notificationService.sendFailureNotification( amountNeeded, request.getTransactionName(), "Insufficient funds.");
                 return false;
             }
 
@@ -264,6 +275,9 @@ public class HubService {
 
             if (checkingCards.isEmpty()) {
                 System.out.println("Transaction canceled: no checking cards linked to this hub.");
+                // SEND FAILURE NOTIFICATION
+                notificationService.sendFailureNotification( amountNeeded, request.getTransactionName(), "No checking cards linked to this hub.");
+
                 return false;
             }
 
@@ -275,6 +289,9 @@ public class HubService {
             // If total checking is insufficient, cancel transaction
             if (totalCheckingBalance < amountNeeded) {
                 System.out.println("Transaction canceled: insufficient total checking balance.");
+                // SEND FAILURE NOTIFICATION
+                notificationService.sendFailureNotification( amountNeeded, request.getTransactionName(), "Insufficient balance across all linked cards.");
+
                 return false;
             }
 
@@ -329,9 +346,17 @@ public class HubService {
             transactionsRepository.save(transaction);
             hubRepository.save(hub);
 
-            return true;
+            transactionSuccessful = true; // Payment succeeded
         }
+
+        // ---------------------- SEND SUCCESSFUL NOTIFICATION ----------------------
+        if (transactionSuccessful) {
+            notificationService.sendPaymentNotification( amountNeeded,request.getTransactionName() );
+        }
+
+        return transactionSuccessful;
     }
+
 
     @Transactional
     public HubEntity resetHubCard(UserEntity currentUser) {
