@@ -20,8 +20,10 @@ public class WalletEntity {
     private String name;
     private Double balance;
     private Boolean active;
-    private Boolean selected = false; // Determines if the wallet is selected for transactions
-
+    private Boolean selected = false;
+    private Long cardThemeId;
+    private String category;
+    private Double allocation;
     @ManyToOne
     @JoinColumn(name = "hub_id", referencedColumnName = "id")
     @JsonBackReference
@@ -42,6 +44,30 @@ public class WalletEntity {
     private List<TransactionsEntity> transactions;
 
     // Getters and Setters
+
+    public Double getAllocation() {
+        return allocation;
+    }
+
+    public void setAllocation(Double allocation) {
+        this.allocation = allocation;
+    }
+
+    public Long getCardThemeId() {
+        return cardThemeId;
+    }
+
+    public void setCardThemeId(Long cardThemeId) {
+        this.cardThemeId = cardThemeId;
+    }
+
+    public String getCategory() {
+        return category;
+    }
+
+    public void setCategory(String category) {
+        this.category = category;
+    }
 
     public Long getId() {
         return id;

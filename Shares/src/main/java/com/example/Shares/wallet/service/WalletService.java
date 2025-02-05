@@ -12,6 +12,8 @@ import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 @Service
 public class WalletService {
@@ -27,20 +29,20 @@ public class WalletService {
         WalletEntity wallet = new WalletEntity();
         wallet.setName(request.getName());
         wallet.setBalance(request.getBalance());
-        wallet.setHub(user.getHub());  // Associate the wallet with the user's hub
+        wallet.setCardThemeId(request.getCardThemeId());
+        wallet.setCategory(request.getCategory());
+        wallet.setAllocation(request.getBalance());
+        wallet.setHub(user.getHub());
 
-        // The new wallet has an empty 'linkedCards' list by default
 
         String cardNumber = request.getCardNumber();
 
-        // Look for the card in user's hub
         BankCardEntity linkedCard = user.getHub().getLinkedCards().stream()
                 .filter(card -> card.getCardNumber() != null && card.getCardNumber().equals(cardNumber))
                 .findFirst()
                 .orElse(null);
 
         if (linkedCard != null) {
-            // Just add it to the wallet's linkedCards
             wallet.getLinkedCards().add(linkedCard);
         } else {
             throw new IllegalArgumentException("The provided card is not linked to the hub.");
@@ -98,5 +100,16 @@ public class WalletService {
         walletRepository.saveAll(hub.getWallets());
         hubRepository.save(hub);
     }
+
+    public List<WalletEntity> getAllWalletsForUser(UserEntity user) {
+        HubEntity hub = user.getHub();
+        if (hub == null) {
+            return Collections.emptyList(); // No hub means no wallets
+        }
+        return hub.getWallets();
+    }
+
+
+
 }
 
