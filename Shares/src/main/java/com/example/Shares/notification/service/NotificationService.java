@@ -1,5 +1,9 @@
 package com.example.Shares.notification.service;
 
+import com.example.Shares.hub.entity.HubEntity;
+import com.example.Shares.hub.repository.HubRepository;
+import com.example.Shares.notification.entity.ExpoToken;
+import com.example.Shares.notification.repository.ExpoTokenRepository;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -9,10 +13,18 @@ import org.springframework.web.client.RestTemplate;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 @Service
 public class NotificationService {
     private static final  String  EXPO_PUSH_URL = "https://exp.host/--/api/v2/push/send";
+
+    private final ExpoTokenRepository expoTokenRepository;
+private final HubRepository hubRepository;
+    public NotificationService(ExpoTokenRepository expoTokenRepository, HubRepository hubRepository) {
+        this.expoTokenRepository = expoTokenRepository;
+        this.hubRepository = hubRepository;
+    }
 
     public void sendPushNotification(String expoPushToken,String message){
         if(!expoPushToken.startsWith("ExponentPushToken")){
@@ -35,4 +47,46 @@ public class NotificationService {
         String response = restTemplate.postForObject(EXPO_PUSH_URL,entity,String.class);
         System.out.println("Expo push Response: "+ response);
     }
-}
+
+    public void sendPaymentNotification( Double amount, String transactionName) {
+
+            // Get Expo Push Token of the user
+            Optional<ExpoToken> expoTokenOptional = expoTokenRepository.findTopByOrderByIdDesc();
+
+            if (expoTokenOptional.isPresent()) {
+                String expoPushToken = expoTokenOptional.get().getToken();
+                String message = "You spent " + amount + " KD at " + transactionName; // Use transactionName from request
+
+                sendPushNotification(expoPushToken, message);
+                System.out.println("Notification sent: " + message);
+            } else {
+                System.out.println("No Expo Push Token found for this user.");
+            }
+        }
+
+
+    public void sendFailureNotification( Double amount, String transactionName, String reason) {
+
+            // Get Expo Push Token of the store owner
+            Optional<ExpoToken> expoTokenOptional = expoTokenRepository.findTopByOrderByIdDesc();
+
+            if (expoTokenOptional.isPresent()) {
+                String expoPushToken = expoTokenOptional.get().getToken();
+                String message = "Transaction declined: " + reason + ". Amount: " + amount + " KD at " + transactionName;
+
+                sendPushNotification(expoPushToken, message);
+                System.out.println("Failure notification sent: " + message);
+            } else {
+                System.out.println("No Expo Push Token found for this store owner.");
+            }
+        }
+
+
+
+    }
+
+
+
+
+
+

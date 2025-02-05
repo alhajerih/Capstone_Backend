@@ -18,30 +18,6 @@ import java.util.stream.Collectors;
 
 @Service
 public class UserServiceImpl implements UserService {
-//
-//    private final UserRepository userRepository;
-//private final BCryptPasswordEncoder bCryptPasswordEncoder;
-//    public UserServiceImpl(UserRepository userRepository, BCryptPasswordEncoder bCryptPasswordEncoder) {
-//        this.userRepository = userRepository;
-//        this.bCryptPasswordEncoder = bCryptPasswordEncoder;
-//    }
-//
-//    @Override
-//    public UserResponse createUser(CreateUserRequest request){
-//        UserEntity userEntity = new UserEntity();
-//
-//        if(userRepository.existsByUsernameIgnoreCase(request.getUsername())){
-//            throw new RuntimeException("Username already exists");
-//        }
-//
-//        // Create a new UserEntity
-//        userEntity.setUsername(request.getUsername());
-//        userEntity.setPassword(bCryptPasswordEncoder.encode(request.getPassword()));
-//        userEntity.setRole(Roles.User);
-//        userEntity =userRepository.save(userEntity);
-//
-//        return new UserResponse(userEntity.getId(), userEntity.getUsername(),userEntity.getRole().toString());
-//    }
 
 
     @Autowired
