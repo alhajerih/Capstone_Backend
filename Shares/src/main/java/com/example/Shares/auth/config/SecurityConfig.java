@@ -134,6 +134,7 @@ public class SecurityConfig extends org.springframework.security.config.annotati
                         "/swagger-ui.html",
                         "/swagger-ui/**",
                         "/v3/api-docs",
+                        "/api-docs/**",
                         "/swagger-resources/**",
                         "/webjars/**",
                         "/ws/**",
