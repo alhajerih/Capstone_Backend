@@ -48,14 +48,14 @@ private final HubRepository hubRepository;
         System.out.println("Expo push Response: "+ response);
     }
 
-    public void sendPaymentNotification( Double amount, String transactionName) {
+    public void sendPaymentNotification( String wallet,Double balance,Double amount, String transactionName) {
 
             // Get Expo Push Token of the user
             Optional<ExpoToken> expoTokenOptional = expoTokenRepository.findTopByOrderByIdDesc();
 
             if (expoTokenOptional.isPresent()) {
                 String expoPushToken = expoTokenOptional.get().getToken();
-                String message = "You spent " + amount + " KD at " + transactionName; // Use transactionName from request
+                String message = "You spent " + amount + " KD at " + transactionName +"From your wallet: "+wallet+". The new balance is: "+balance; // Use transactionName from request
 
                 sendPushNotification(expoPushToken, message);
                 System.out.println("Notification sent: " + message);
