@@ -30,4 +30,13 @@ public class HubCardPaymentRequest {
     public void setTransactionName(String transactionName) {
         this.transactionName = transactionName;
     }
+
+    @Override
+    public String toString() {
+        return "HubCardPaymentRequest{" +
+                "hubCardNumber='" + hubCardNumber + '\'' +
+                ", amount=" + amount +
+                ", transactionName='" + transactionName + '\'' +
+                '}';
+    }
 }

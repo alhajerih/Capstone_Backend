@@ -216,7 +216,7 @@ private final NotificationService notificationService;
                 .filter(WalletEntity::getSelected)
                 .findFirst()
                 .orElse(null);
-
+        System.out.println("SelectedWallet is : "+ selectedWallet.getName());
         boolean transactionSuccessful = false; // Track if payment succeeded
 
         // -------------------------------------------------------------------------
@@ -351,7 +351,7 @@ private final NotificationService notificationService;
 
         // ---------------------- SEND SUCCESSFUL NOTIFICATION ----------------------
         if (transactionSuccessful) {
-            notificationService.sendPaymentNotification( amountNeeded,request.getTransactionName() );
+            notificationService.sendPaymentNotification( selectedWallet.getName(),selectedWallet.getBalance(),amountNeeded,request.getTransactionName() );
         }
 
         return transactionSuccessful;
