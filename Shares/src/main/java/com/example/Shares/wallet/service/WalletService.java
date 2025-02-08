@@ -15,6 +15,7 @@ import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class WalletService {
@@ -59,26 +60,31 @@ public class WalletService {
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("Wallet not found"));
 
-        if(wallet.getName()!=(null)){
-            existingWallet.setName(wallet.getName());
-        }
-        if(wallet.getCardThemeId()!=(null)){
-            existingWallet.setCardThemeId(wallet.getCardThemeId());
-        }
-        if(wallet.getCategory()!=(null)){
-            existingWallet.setCategory(wallet.getCategory());
-        }
+        // Update fields dynamically if not null
+        Optional.ofNullable(wallet.getName()).ifPresent(existingWallet::setName);
+        Optional.ofNullable(wallet.getCardThemeId()).ifPresent(existingWallet::setCardThemeId);
+        Optional.ofNullable(wallet.getCategory()).ifPresent(existingWallet::setCategory);
+        Optional.ofNullable(wallet.getAllocation()).ifPresent(existingWallet::setAllocation);
+        Optional.ofNullable(wallet.getBalance()).ifPresent(existingWallet::setBalance);
 
-        if(wallet.getAllocation()!=(null)){
-            existingWallet.setAllocation(wallet.getAllocation());
-        }
-        if(wallet.getBalance()!=(null)){
-            existingWallet.setBalance(wallet.getBalance());
-        }
-
+        // Save the updated wallet
         walletRepository.save(existingWallet);
     }
 
+
+    @Transactional
+    public void deleteWallet(UserEntity user, Long walletId) {
+        WalletEntity existingWallet = user.getHub().getWallets().stream()
+                .filter(w -> w.getId().equals(walletId))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("Wallet not found"));
+
+        // Remove from the user's hub wallet list before deletion
+        user.getHub().getWallets().remove(existingWallet);
+
+        System.out.println("Deleting wallet: " + existingWallet.getName());
+        walletRepository.delete(existingWallet);
+    }
 
     @Transactional
     public void selectWallet(UserEntity user, Long walletId) {

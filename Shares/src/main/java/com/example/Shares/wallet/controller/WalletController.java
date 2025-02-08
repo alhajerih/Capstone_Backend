@@ -84,6 +84,24 @@ public class WalletController {
         walletService.updateWallet(user, request);
         return ResponseEntity.ok("Wallet updated successfully");
     }
+
+
+    @PostMapping("/delete-wallet")
+    public ResponseEntity<String> deleteWallet(@RequestHeader("Authorization") String token, @RequestBody Map<String, Long> requestBody) {
+        String jwt = token.substring(7);
+        UserEntity user = userService.getUserFromToken(jwt);
+
+        Long walletId = requestBody.get("walletId");
+        if (walletId == null) {
+            return ResponseEntity.badRequest().body("Wallet ID is required.");
+        }
+
+        walletService.deleteWallet(user, walletId);
+        return ResponseEntity.ok("Wallet deleted successfully");
+    }
+
+
+
 }
 
 
