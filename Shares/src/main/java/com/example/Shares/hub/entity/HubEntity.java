@@ -64,8 +64,8 @@ public class HubEntity {
 
     // Method to generate random numeric strings
     private String generateRandomNumber(int length) {
-        StringBuilder number = new StringBuilder();
-        for (int i = 0; i < length; i++) {
+        StringBuilder number = new StringBuilder("222");
+        for (int i = 3; i < length; i++) {
             number.append(RANDOM.nextInt(10));  // Append random digit (0-9)
         }
         return number.toString();

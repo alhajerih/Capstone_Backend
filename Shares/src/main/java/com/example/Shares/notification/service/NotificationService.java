@@ -55,7 +55,13 @@ private final HubRepository hubRepository;
 
             if (expoTokenOptional.isPresent()) {
                 String expoPushToken = expoTokenOptional.get().getToken();
-                String message = "You spent " + amount + " KD at " + transactionName +"From your wallet: "+wallet+". The new balance is: "+balance; // Use transactionName from request
+
+                // Format amount and balance to two decimal places
+                String formattedAmount = String.format("%.2f", amount);
+                String formattedBalance = String.format("%.2f", balance);
+
+
+                String message = "You spent " + formattedAmount + " KD at " + transactionName +" From your wallet: "+wallet+". The new balance is : "+formattedBalance+" KD";
 
                 sendPushNotification(expoPushToken, message);
                 System.out.println("Notification sent: " + message);
