@@ -3,6 +3,7 @@ package com.example.Shares.wallet.controller;
 import com.example.Shares.auth.entity.UserEntity;
 import com.example.Shares.auth.service.UserService;
 import com.example.Shares.wallet.bo.CreateWalletRequest;
+import com.example.Shares.wallet.bo.UpdateWalletRequest;
 import com.example.Shares.wallet.entity.WalletEntity;
 import com.example.Shares.wallet.service.WalletService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -73,6 +74,15 @@ public class WalletController {
         List<WalletEntity> wallets = walletService.getAllWalletsForUser(currentUser);
 
         return ResponseEntity.ok(wallets);
+    }
+
+    @PostMapping("/update-wallet")
+    public ResponseEntity<String> updateWallet(@RequestHeader("Authorization") String token, @RequestBody UpdateWalletRequest request) {
+        String jwt = token.substring(7);
+        UserEntity user = userService.getUserFromToken(jwt);
+
+        walletService.updateWallet(user, request);
+        return ResponseEntity.ok("Wallet updated successfully");
     }
 }
 

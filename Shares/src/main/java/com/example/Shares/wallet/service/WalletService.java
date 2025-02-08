@@ -5,6 +5,7 @@ import com.example.Shares.auth.entity.UserEntity;
 import com.example.Shares.hub.entity.HubEntity;
 import com.example.Shares.hub.repository.HubRepository;
 import com.example.Shares.wallet.bo.CreateWalletRequest;
+import com.example.Shares.wallet.bo.UpdateWalletRequest;
 import com.example.Shares.wallet.entity.WalletEntity;
 import com.example.Shares.wallet.repository.WalletRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,6 +51,34 @@ public class WalletService {
 
         walletRepository.save(wallet);
     }
+
+    @Transactional
+    public void updateWallet(UserEntity user, UpdateWalletRequest wallet) {
+        WalletEntity existingWallet = user.getHub().getWallets().stream()
+                .filter(w -> w.getId().equals(wallet.getWalletId()))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("Wallet not found"));
+
+        if(wallet.getName()!=(null)){
+            existingWallet.setName(wallet.getName());
+        }
+        if(wallet.getCardThemeId()!=(null)){
+            existingWallet.setCardThemeId(wallet.getCardThemeId());
+        }
+        if(wallet.getCategory()!=(null)){
+            existingWallet.setCategory(wallet.getCategory());
+        }
+
+        if(wallet.getAllocation()!=(null)){
+            existingWallet.setAllocation(wallet.getAllocation());
+        }
+        if(wallet.getBalance()!=(null)){
+            existingWallet.setBalance(wallet.getBalance());
+        }
+
+        walletRepository.save(existingWallet);
+    }
+
 
     @Transactional
     public void selectWallet(UserEntity user, Long walletId) {
