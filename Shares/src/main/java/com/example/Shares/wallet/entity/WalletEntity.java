@@ -21,7 +21,8 @@ public class WalletEntity {
     private Double balance;
     private Boolean active;
     private Boolean selected = false;
-    private Long cardThemeId;
+    private Long colorId;
+    private Long patternId;
     private String category;
     private Double allocation;
     @ManyToOne
@@ -53,13 +54,7 @@ public class WalletEntity {
         this.allocation = allocation;
     }
 
-    public Long getCardThemeId() {
-        return cardThemeId;
-    }
 
-    public void setCardThemeId(Long cardThemeId) {
-        this.cardThemeId = cardThemeId;
-    }
 
     public String getCategory() {
         return category;
@@ -131,5 +126,21 @@ public class WalletEntity {
 
     public void setTransactions(List<TransactionsEntity> transactions) {
         this.transactions = transactions;
+    }
+
+    public Long getColorId() {
+        return colorId;
+    }
+
+    public void setColorId(Long colorId) {
+        this.colorId = colorId;
+    }
+
+    public Long getPatternId() {
+        return patternId;
+    }
+
+    public void setPatternId(Long patternId) {
+        this.patternId = patternId;
     }
 }
