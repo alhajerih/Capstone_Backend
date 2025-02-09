@@ -6,20 +6,16 @@ public class CreateWalletRequest {
     private String name;
     private Double balance;
     private String cardNumber;  // New field for card number
-    private Long cardThemeId;
+    private Long patternID;
+    private Long colorId;
     private String category;
 
     public CreateWalletRequest() {
         //Default constructor
     }
 
-    public Long getCardThemeId() {
-        return cardThemeId;
-    }
 
-    public void setCardThemeId(Long cardThemeId) {
-        this.cardThemeId = cardThemeId;
-    }
+
 
     public String getCategory() {
         return category;
@@ -53,7 +49,21 @@ public class CreateWalletRequest {
         this.balance = balance;
     }
 
+    public Long getPatternID() {
+        return patternID;
+    }
 
+    public void setPatternID(Long patternID) {
+        this.patternID = patternID;
+    }
+
+    public Long getColorId() {
+        return colorId;
+    }
+
+    public void setColorId(Long colorId) {
+        this.colorId = colorId;
+    }
 }
 
 

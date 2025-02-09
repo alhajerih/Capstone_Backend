@@ -6,9 +6,10 @@ public class UpdateWalletRequest {
     private Long walletId;
     private String name;
     private Double balance;
-    private Long cardThemeId;
+    private Long patternId;
     private String category;
     private Double allocation;
+    private Long colorId;
 
     public UpdateWalletRequest() {
         //Default constructor
@@ -22,12 +23,21 @@ public class UpdateWalletRequest {
         this.walletId = walletId;
     }
 
-    public Long getCardThemeId() {
-        return cardThemeId;
+
+    public Long getPatternId() {
+        return patternId;
     }
 
-    public void setCardThemeId(Long cardThemeId) {
-        this.cardThemeId = cardThemeId;
+    public void setPatternId(Long patternId) {
+        this.patternId = patternId;
+    }
+
+    public Long getColorId() {
+        return colorId;
+    }
+
+    public void setColorId(Long colorId) {
+        this.colorId = colorId;
     }
 
     public String getCategory() {

@@ -31,7 +31,8 @@ public class WalletService {
         WalletEntity wallet = new WalletEntity();
         wallet.setName(request.getName());
         wallet.setBalance(request.getBalance());
-        wallet.setCardThemeId(request.getCardThemeId());
+        wallet.setPatternId(request.getPatternID());
+        wallet.setColorId(request.getColorId());
         wallet.setCategory(request.getCategory());
         wallet.setAllocation(request.getBalance());
         wallet.setHub(user.getHub());
@@ -62,7 +63,8 @@ public class WalletService {
 
         // Update fields dynamically if not null
         Optional.ofNullable(wallet.getName()).ifPresent(existingWallet::setName);
-        Optional.ofNullable(wallet.getCardThemeId()).ifPresent(existingWallet::setCardThemeId);
+        Optional.ofNullable(wallet.getPatternId()).ifPresent(existingWallet::setPatternId);
+        Optional.ofNullable(wallet.getColorId()).ifPresent(existingWallet::setColorId);
         Optional.ofNullable(wallet.getCategory()).ifPresent(existingWallet::setCategory);
         Optional.ofNullable(wallet.getAllocation()).ifPresent(existingWallet::setAllocation);
         Optional.ofNullable(wallet.getBalance()).ifPresent(existingWallet::setBalance);
