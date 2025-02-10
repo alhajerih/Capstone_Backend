@@ -35,7 +35,7 @@ public class WalletService {
         wallet.setColorId(request.getColorId());
         wallet.setCategory(request.getCategory());
         wallet.setAllocation(request.getBalance());
-        wallet.setActive(true);
+        wallet.setLocked(false);
         wallet.setHub(user.getHub());
 
 
@@ -153,7 +153,7 @@ public class WalletService {
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("Wallet not found"));
 
-        wallet.setActive(!wallet.getActive());
+        wallet.setLocked(!wallet.getLocked());
 
         walletRepository.save(wallet);
     }

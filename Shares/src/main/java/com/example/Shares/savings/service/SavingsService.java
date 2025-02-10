@@ -92,7 +92,7 @@ public class SavingsService {
         WalletEntity wallet = new WalletEntity();
         wallet.setName("Wallet from Savings: " + savings.getName());
         wallet.setBalance(0.0);
-        wallet.setActive(true);
+        wallet.setLocked(false);
         wallet.setSelected(false);
         wallet.setHub(hub);
 
