@@ -1,10 +1,10 @@
-package com.example.AuthService;
+package com.example.notificationservice;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class AuthServiceApplicationTests {
+class NotificationserviceApplicationTests {
 
 	@Test
 	void contextLoads() {
