@@ -4,10 +4,11 @@ import com.example.Shares.auth.entity.BankCardEntity;
 import com.example.Shares.auth.entity.UserEntity;
 
 import javax.persistence.*;
+import java.io.Serializable;
 
 @Entity
 @Table(name = "savings")
-public class SavingsEntity {
+public class SavingsEntity implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

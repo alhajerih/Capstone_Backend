@@ -5,12 +5,13 @@ import com.example.Shares.wallet.entity.WalletEntity;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-public class BankCardEntity {
+public class BankCardEntity implements Serializable {
     // Secure random number generator
     private static final SecureRandom RANDOM = new SecureRandom();
     @Id
