@@ -1,5 +1,6 @@
 package com.example.Shares.auth.entity;
 
+import com.example.Shares.auth.listener.BankCardEntityListener;
 import com.example.Shares.hub.entity.HubEntity;
 import com.example.Shares.wallet.entity.WalletEntity;
 import com.fasterxml.jackson.annotation.JsonBackReference;
@@ -10,32 +11,40 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
+@EntityListeners(BankCardEntityListener.class)  // <-- The magic is here
 public class BankCardEntity {
-    // Secure random number generator
+
     private static final SecureRandom RANDOM = new SecureRandom();
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     private String bankName;
     private String accountNumber;
     private String cardNumber;
     private Double cardBalance;
-    private String cardType; // e.g., Debit, Credit, saving, checking
+    private String cardType; // e.g., "checking", "savings"
+
     @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false) // Foreign key to User
+    @JoinColumn(name = "user_id", nullable = false)
     @JsonBackReference
     private UserEntity user;
+
     @ManyToOne
-    @JoinColumn(name = "hub_id") // Foreign key to HubEntity
-    @JsonBackReference // Prevent infinite recursion
+    @JoinColumn(name = "hub_id")
+    @JsonBackReference
     private HubEntity hub;
+
     private boolean selected = false;
+
     @ManyToMany(mappedBy = "linkedCards")
     @JsonBackReference
     private List<WalletEntity> wallets = new ArrayList<>();
 
     private Boolean salaryAccount;
-    // Generate account number and card number
+
+    // ------------------------ Lifecycle Callbacks ------------------------
     @PrePersist
     @PreUpdate
     public void generateAccountAndCardNumbers() {
@@ -48,15 +57,14 @@ public class BankCardEntity {
     }
 
     private String generateRandomNumber(int length) {
-        StringBuilder number = new StringBuilder(length);
+        StringBuilder sb = new StringBuilder();
         for (int i = 0; i < length; i++) {
-            number.append(RANDOM.nextInt(10));
+            sb.append(RANDOM.nextInt(10));
         }
-        return number.toString();
+        return sb.toString();
     }
 
-    // Getters and Setters
-
+    // ------------------------ Getters and Setters ------------------------
     public Boolean getSalaryAccount() {
         return salaryAccount;
     }

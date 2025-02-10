@@ -1,0 +1,14 @@
+{
+  "configurations": [
+    {
+      "type": "java",
+      "name": "Spring Boot-SharesApplication<Shares>",
+      "request": "launch",
+      "cwd": "${workspaceFolder}",
+      "mainClass": "com.example.Shares.SharesApplication",
+      "projectName": "Shares",
+      "args": "",
+      "envFile": "${workspaceFolder}/.env"
+    }
+  ]
+}

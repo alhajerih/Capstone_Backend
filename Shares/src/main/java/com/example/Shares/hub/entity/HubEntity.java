@@ -6,6 +6,7 @@ import com.example.Shares.transactions.entity.TransactionsEntity;
 import com.example.Shares.wallet.entity.WalletEntity;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 import javax.persistence.*;
 import java.security.SecureRandom;
 import java.time.LocalDate;
@@ -22,9 +23,11 @@ public class HubEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     private Boolean isActive;
     private Double savingsBalance = 0.0;
     private Double checkingsBalance = 0.0;
+
     private String hubCardNumber;
     private String expDate;
     private String cvv;
@@ -45,59 +48,59 @@ public class HubEntity {
     @OneToMany(mappedBy = "hub", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<BankCardEntity> linkedCards = new ArrayList<>();
 
-    // Generate random values before saving or updating the entity
+    // ------------------------ Lifecycle Callbacks ------------------------
     @PrePersist
     @PreUpdate
     public void generateHubDetails() {
         if (hubCardNumber == null || hubCardNumber.isEmpty()) {
-            hubCardNumber = generateRandomNumber(16);  // Generate 16-digit card number
+            hubCardNumber = generateRandomNumber(16); // Example
         }
-
         if (cvv == null || cvv.isEmpty()) {
-            cvv = generateRandomNumber(3);  // Generate 3-digit CVV number
+            cvv = generateRandomNumber(3);
         }
-
         if (expDate == null || expDate.isEmpty()) {
-            expDate = generateExpirationDate();  // Generate expiration date
+            expDate = generateExpirationDate();
         }
     }
 
-    // Method to generate random numeric strings
     private String generateRandomNumber(int length) {
         StringBuilder number = new StringBuilder("222");
         for (int i = 3; i < length; i++) {
-            number.append(RANDOM.nextInt(10));  // Append random digit (0-9)
+            number.append(RANDOM.nextInt(10));
         }
         return number.toString();
     }
 
-    // Method to generate an expiration date (current month + 5 years)
     private String generateExpirationDate() {
         LocalDate currentDate = LocalDate.now();
         LocalDate expirationDate = currentDate.plusYears(5);
         return expirationDate.format(DATE_FORMATTER);
     }
 
+    /**
+     * Recompute the aggregator fields from all linked cards.
+     */
     public void updateBalances() {
-        savingsBalance = linkedCards.stream()
+        this.savingsBalance = linkedCards.stream()
                 .filter(card -> "savings".equalsIgnoreCase(card.getCardType()))
                 .mapToDouble(BankCardEntity::getCardBalance)
                 .sum();
 
-        checkingsBalance = linkedCards.stream()
+        this.checkingsBalance = linkedCards.stream()
                 .filter(card -> "checking".equalsIgnoreCase(card.getCardType()))
                 .mapToDouble(BankCardEntity::getCardBalance)
                 .sum();
     }
 
+    // Convenience methods
     public void addLinkedCard(BankCardEntity card) {
-        this.linkedCards.add(card);
+        linkedCards.add(card);
         card.setHub(this);
         updateBalances();
     }
 
     public void removeLinkedCard(BankCardEntity card) {
-        this.linkedCards.remove(card);
+        linkedCards.remove(card);
         card.setHub(null);
         updateBalances();
     }
@@ -109,8 +112,7 @@ public class HubEntity {
         transactions.add(transaction);
     }
 
-    // Getters and Setters
-
+    // ------------------------ Getters / Setters ------------------------
     public Long getId() {
         return id;
     }

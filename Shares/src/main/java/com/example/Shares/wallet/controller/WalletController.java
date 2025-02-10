@@ -99,7 +99,17 @@ public class WalletController {
         walletService.deleteWallet(user, walletId);
         return ResponseEntity.ok("Wallet deleted successfully");
     }
+    @PostMapping("/toggle-active")
+    public ResponseEntity<String> toggleWalletActiveStatus(@RequestHeader("Authorization") String token,
+                                                           @RequestBody UpdateWalletRequest request) {
+        String jwt = token.substring(7);
 
+        UserEntity user = userService.getUserFromToken(jwt);
+
+        walletService.toggleWalletActiveStatus(user, request.getWalletId());
+
+        return ResponseEntity.ok("Wallet active status toggled successfully.");
+    }
 
 
 }
