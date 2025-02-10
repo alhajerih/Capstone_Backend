@@ -20,7 +20,7 @@ public class WalletEntity implements Serializable {
 
     private String name;
     private Double balance;
-    private Boolean active;
+    private Boolean locked;
     private Boolean selected = false;
     private Long colorId;
     private Long patternId;
@@ -89,12 +89,12 @@ public class WalletEntity implements Serializable {
         this.balance = balance;
     }
 
-    public Boolean getActive() {
-        return active;
+    public Boolean getLocked() {
+        return locked;
     }
 
-    public void setActive(Boolean active) {
-        this.active = active;
+    public void setLocked(Boolean active) {
+        this.locked = active;
     }
 
     public HubEntity getHub() {
