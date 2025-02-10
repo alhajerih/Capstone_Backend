@@ -1,5 +1,7 @@
 package com.example.Shares.auth.service;
 
+import com.example.Shares.auth.bo.LoginResponse;
+import com.example.Shares.auth.bo.otp.GenerateOtpResponse;
 import com.example.Shares.auth.config.JWTUtil;
 import com.example.Shares.auth.entity.BankCardEntity;
 import com.example.Shares.auth.entity.UserEntity;
@@ -42,7 +44,7 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private TwilioService twilioService;
 
-    public String generateOtp(String civilId) {
+    public GenerateOtpResponse generateOtp(String civilId) {
         UserEntity user = userRepository.findByCivilId(civilId)
                 .orElseThrow(() -> new IllegalArgumentException("Civil ID not found"));
 
@@ -58,10 +60,12 @@ public class UserServiceImpl implements UserService {
 
         // Send OTP via Twilio
         twilioService.sendSms(user.getPhoneNumber(), otp);
-        return otp;
+        GenerateOtpResponse otpResponse = new GenerateOtpResponse();
+        otpResponse.setOtp("OTP sent to registered phone number: " +otp);
+        return otpResponse;
     }
 
-    public String validateOtp(String otp) {
+    public LoginResponse validateOtp(String otp) {
         // Find the user by OTP
         UserEntity user = userRepository.findByOtp(otp);
         if (user == null) {
@@ -74,10 +78,11 @@ public class UserServiceImpl implements UserService {
         }
 
         // OTP is valid; generate a JWT token
-        return jwtUtil.generateToken(user.getCivilId());
+        LoginResponse loginResponse = new LoginResponse();
+        loginResponse.setToken(jwtUtil.generateToken(user.getCivilId()));
+        return loginResponse;
     }
 
-    @CacheEvict(value = "users", key = "#username")
     public void registerUser(String civilId, String username, String password) {
         UserEntity user = userRepository.findByCivilId(civilId)
                 .orElseThrow(() -> new IllegalArgumentException("Civil ID not found"));

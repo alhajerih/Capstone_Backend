@@ -2,9 +2,7 @@ package com.example.Shares.auth.controller;
 
 import com.example.Shares.auth.bo.LoginResponse;
 import com.example.Shares.auth.bo.auth.CreateLoginRequest;
-import com.example.Shares.auth.bo.otp.GenerateOtpRequest;
-import com.example.Shares.auth.bo.otp.RegisterUserRequest;
-import com.example.Shares.auth.bo.otp.ValidateOtpRequest;
+import com.example.Shares.auth.bo.otp.*;
 import com.example.Shares.auth.entity.BankCardEntity;
 import com.example.Shares.auth.entity.UserEntity;
 import com.example.Shares.auth.service.UserService;
@@ -24,21 +22,24 @@ public class AuthController {
 
 
     @PostMapping("/generate-otp")
-    public ResponseEntity<String> generateOtp(@RequestBody GenerateOtpRequest request) {
-        String otp = userService.generateOtp(request.getCivilId());
-        return ResponseEntity.ok("OTP sent to registered phone number: " + otp);
+    public ResponseEntity<GenerateOtpResponse> generateOtp(@RequestBody GenerateOtpRequest request) {
+        GenerateOtpResponse otp = userService.generateOtp(request.getCivilId());
+        return ResponseEntity.ok(otp);
     }
 
     @PostMapping("/validate-otp")
-    public ResponseEntity<String> validateOtp(@RequestBody ValidateOtpRequest request) {
-        String token = userService.validateOtp(request.getOtp());
+    public ResponseEntity<LoginResponse> validateOtp(@RequestBody ValidateOtpRequest request) {
+        LoginResponse token = userService.validateOtp(request.getOtp());
         return ResponseEntity.ok(token); // Return the JWT token
     }
 
     @PostMapping("/register")
-    public ResponseEntity<String> registerUser(@RequestBody RegisterUserRequest request) {
+    public ResponseEntity<MessageResponse> registerUser(@RequestBody RegisterUserRequest request) {
+
         userService.registerUser(request.getCivilId(), request.getUsername(), request.getPassword());
-        return ResponseEntity.ok("User registered successfully.");
+        MessageResponse messageResponse = new MessageResponse();
+        messageResponse.setMessage("User registered successfully.");
+        return ResponseEntity.ok(messageResponse);
     }
 
     @PostMapping("/login")
