@@ -13,6 +13,7 @@ import com.example.Shares.transactions.repository.TransactionsRepository;
 import com.example.Shares.wallet.entity.WalletEntity;
 import com.example.Shares.wallet.repository.WalletRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -200,6 +201,7 @@ private final NotificationService notificationService;
     }
 
     @Transactional
+    @Cacheable(value = "hubCard", key = "#request")
     public boolean processPaymentByHubCard(HubCardPaymentRequest request) {
         // 1) Find the hub by the provided hubCardNumber
         Optional<HubEntity> hubOptional = hubRepository.findByHubCardNumber(request.getHubCardNumber());

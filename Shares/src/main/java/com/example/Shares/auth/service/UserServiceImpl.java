@@ -7,11 +7,17 @@ import com.example.Shares.auth.repository.BankCardRepository;
 import com.example.Shares.auth.repository.UserRepository;
 import com.example.Shares.auth.utils.Roles;
 import com.example.Shares.hub.entity.HubEntity;
+import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.stream.Collectors;
@@ -55,7 +61,6 @@ public class UserServiceImpl implements UserService {
         return otp;
     }
 
-
     public String validateOtp(String otp) {
         // Find the user by OTP
         UserEntity user = userRepository.findByOtp(otp);
@@ -72,7 +77,7 @@ public class UserServiceImpl implements UserService {
         return jwtUtil.generateToken(user.getCivilId());
     }
 
-
+    @CacheEvict(value = "users", key = "#username")
     public void registerUser(String civilId, String username, String password) {
         UserEntity user = userRepository.findByCivilId(civilId)
                 .orElseThrow(() -> new IllegalArgumentException("Civil ID not found"));
@@ -87,18 +92,30 @@ public class UserServiceImpl implements UserService {
     }
 
     public List<BankCardEntity> getBankCards(String token) {
-        // Use the helper method to get the user
-        UserEntity user = getUserFromToken(token);
+        // Extract civilId from the token
+        String civilId = jwtUtil.extractCivilId(token);
 
-        // Return all bank cards for the user
-        return user.getBankCards();
+        if (civilId == null || civilId.isEmpty()) {
+            throw new IllegalArgumentException("Invalid token: Civil ID is null");
+        }
+
+        // Fetch user and ensure `bankCards` is initialized
+        UserEntity user = userRepository.findByCivilId(civilId)
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+
+        // Force initialization
+        List<BankCardEntity> bankCards = new ArrayList<>(user.getBankCards());
+
+        return bankCards; // This ensures Hibernate loads the collection before caching
     }
+
 
 
 
     public List<BankCardEntity> getLinkedCards(String token) {
         // Extract civilId from the token
         String civilId = jwtUtil.extractCivilId(token);
+
         if (civilId == null || civilId.isEmpty()) {
             throw new IllegalArgumentException("Invalid token: Civil ID not found");
         }
@@ -107,16 +124,21 @@ public class UserServiceImpl implements UserService {
         UserEntity user = userRepository.findByCivilId(civilId)
                 .orElseThrow(() -> new IllegalArgumentException("User not found for Civil ID: " + civilId));
 
-        // Return the linked cards
-        return user.getBankCards().stream()
+        // Force initialization of bankCards to prevent lazy loading issues
+        List<BankCardEntity> bankCards = new ArrayList<>(user.getBankCards());
+
+        // Return only linked (selected) cards
+        return bankCards.stream()
                 .filter(BankCardEntity::isSelected) // Filter where selected = true
                 .collect(Collectors.toList());
     }
 
 
+
     public void saveSelectedCards(String token, List<Long> selectedCardIds) {
         // Extract civilId from token
-        String civilId = jwtUtil.extractCivilId(token); // Ensure this method is working correctly
+        String civilId = jwtUtil.extractCivilId(token);
+
         if (civilId == null || civilId.isEmpty()) {
             throw new IllegalArgumentException("Invalid token: Civil ID not found");
         }
@@ -134,6 +156,7 @@ public class UserServiceImpl implements UserService {
         userRepository.save(user);
     }
 
+
     public String login(String username, String password) {
         // Fetch user by username
         UserEntity user = userRepository.findByUsername(username);
@@ -149,14 +172,20 @@ public class UserServiceImpl implements UserService {
 
     //Helper function
     public UserEntity getUserFromToken(String token) {
-        String civilId = jwtUtil.extractCivilId(token); // Extract civilId from token
+        // Extract civilId from the token
+        String civilId = jwtUtil.extractCivilId(token);
+
         if (civilId == null || civilId.isEmpty()) {
             throw new IllegalArgumentException("Invalid token: Civil ID not found");
         }
 
-        return userRepository.findByCivilId(civilId)
+        // Fetch the user by civilId
+        UserEntity user = userRepository.findByCivilId(civilId)
                 .orElseThrow(() -> new IllegalArgumentException("User not found for civilId: " + civilId));
+        return user;
     }
+
+
 
 
 }
