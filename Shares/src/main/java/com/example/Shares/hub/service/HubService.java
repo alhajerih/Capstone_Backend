@@ -534,17 +534,17 @@ public class HubService {
                 hubRepository.save(hub);
 
                 // Send success notification
-                notificationService.sendPaymentNotification(selectedWallet.getName(),
-                        selectedWallet.getBalance(), amountNeeded, request.getTransactionName());
+//                notificationService.sendPaymentNotification(selectedWallet.getName(),
+//                        selectedWallet.getBalance(), amountNeeded, request.getTransactionName());
                 return true;
             } else {
                 System.out.println("Transaction canceled: insufficient funds in the chosen wallet.");
                 // SEND FAILURE NOTIFICATION
-                notificationService.sendFailureNotification(
-                        amountNeeded,
-                        request.getTransactionName(),
-                        "Insufficient funds in wallet: " + selectedWallet.getName()
-                );
+//                notificationService.sendFailureNotification(
+//                        amountNeeded,
+//                        request.getTransactionName(),
+//                        "Insufficient funds in wallet: " + selectedWallet.getName()
+//                );
                 return false;
             }
 
@@ -563,11 +563,11 @@ public class HubService {
             if (checkingCards.isEmpty()) {
                 System.out.println("Transaction canceled: no checking cards linked to this hub.");
                 // SEND FAILURE NOTIFICATION
-                notificationService.sendFailureNotification(
-                        amountNeeded,
-                        request.getTransactionName(),
-                        "No checking cards linked to this hub."
-                );
+//                notificationService.sendFailureNotification(
+//                        amountNeeded,
+//                        request.getTransactionName(),
+//                        "No checking cards linked to this hub."
+//                );
                 return false;
             }
 
@@ -577,11 +577,11 @@ public class HubService {
 
             if (totalCheckingBalance < amountNeeded) {
                 System.out.println("Transaction canceled: insufficient total checking balance.");
-                notificationService.sendFailureNotification(
-                        amountNeeded,
-                        request.getTransactionName(),
-                        "Insufficient balance across all linked cards."
-                );
+//                notificationService.sendFailureNotification(
+//                        amountNeeded,
+//                        request.getTransactionName(),
+//                        "Insufficient balance across all linked cards."
+//                );
                 return false;
             }
 
