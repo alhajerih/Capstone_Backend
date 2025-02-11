@@ -8,7 +8,7 @@ import com.example.Shares.hub.bo.HubCardPaymentRequest;
 import com.example.Shares.hub.bo.PaymentRequest;
 import com.example.Shares.hub.entity.HubEntity;
 import com.example.Shares.hub.repository.HubRepository;
-import com.example.Shares.notification.service.NotificationService;
+//import com.example.Shares.notification.service.NotificationService;
 import com.example.Shares.transactions.entity.TransactionsEntity;
 import com.example.Shares.transactions.repository.TransactionsRepository;
 import com.example.Shares.wallet.entity.WalletEntity;
@@ -18,6 +18,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 import javax.transaction.Transactional;
 import java.time.LocalDate;
@@ -26,11 +27,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
 public class HubService {
 
+    private  final RestTemplate restTemplate;
     @Autowired
     private BankCardRepository cardBankRepository;
 
@@ -42,10 +46,11 @@ public class HubService {
 
     @Autowired
     private TransactionsRepository transactionsRepository;
-private final NotificationService notificationService;
+//private final NotificationService notificationService;
 
-    public HubService(NotificationService notificationService) {
-        this.notificationService = notificationService;
+    public HubService(RestTemplate restTemplate) {
+        this.restTemplate = restTemplate;
+//        this.notificationService = notificationService;
     }
 
     @Transactional
@@ -265,7 +270,18 @@ private final NotificationService notificationService;
             } else {
                 System.out.println("Transaction canceled: insufficient funds in the selected wallet.");
                 // SEND FAILURE NOTIFICATION
-                notificationService.sendFailureNotification( amountNeeded, request.getTransactionName(), "Insufficient funds.");
+                // SEND FAILURE NOTIFICATION
+                Map<String, Object> requestBody = new HashMap<>();
+                requestBody.put("amountNeeded", amountNeeded);
+                requestBody.put("transactionName", request.getTransactionName());
+                requestBody.put("failureReason", "insufficient funds in the selected wallet.");
+
+                String response = restTemplate.postForObject(
+                        "http://localhost:8081/api/setup/sendFailureNotification",
+                        requestBody, // Pass the map as request body
+                        String.class
+                );
+//                notificationService.sendFailureNotification( amountNeeded, request.getTransactionName(), "Insufficient funds.");
                 return false;
             }
 
@@ -282,7 +298,17 @@ private final NotificationService notificationService;
             if (checkingCards.isEmpty()) {
                 System.out.println("Transaction canceled: no checking cards linked to this hub.");
                 // SEND FAILURE NOTIFICATION
-                notificationService.sendFailureNotification( amountNeeded, request.getTransactionName(), "No checking cards linked to this hub.");
+                Map<String, Object> requestBody = new HashMap<>();
+                requestBody.put("amountNeeded", amountNeeded);
+                requestBody.put("transactionName", request.getTransactionName());
+                requestBody.put("failureReason", "no checking cards linked to this hub.");
+
+                String response = restTemplate.postForObject(
+                        "http://localhost:8081/api/setup/sendFailureNotification",
+                        requestBody, // Pass the map as request body
+                        String.class
+                );
+//                notificationService.sendFailureNotification( amountNeeded, request.getTransactionName(), "No checking cards linked to this hub.");
 
                 return false;
             }
@@ -296,7 +322,17 @@ private final NotificationService notificationService;
             if (totalCheckingBalance < amountNeeded) {
                 System.out.println("Transaction canceled: insufficient total checking balance.");
                 // SEND FAILURE NOTIFICATION
-                notificationService.sendFailureNotification( amountNeeded, request.getTransactionName(), "Insufficient balance across all linked cards.");
+                Map<String, Object> requestBody = new HashMap<>();
+                requestBody.put("amountNeeded", amountNeeded);
+                requestBody.put("transactionName", request.getTransactionName());
+                requestBody.put("failureReason", "Insufficient balance across all linked cards.");
+
+                String response = restTemplate.postForObject(
+                        "http://localhost:8081/api/setup/sendFailureNotification",
+                        requestBody, // Pass the map as request body
+                        String.class
+                );
+//                notificationService.sendFailureNotification( amountNeeded, request.getTransactionName(), "Insufficient balance across all linked cards.");
 
                 return false;
             }
@@ -357,7 +393,17 @@ private final NotificationService notificationService;
 
         // ---------------------- SEND SUCCESSFUL NOTIFICATION ----------------------
         if (transactionSuccessful) {
-            notificationService.sendPaymentNotification( selectedWallet.getName(),selectedWallet.getBalance(),amountNeeded,request.getTransactionName() );
+            Map<String, Object> requestBody = new HashMap<>();
+            requestBody.put("walletName", selectedWallet.getName());
+            requestBody.put("walletBalance", selectedWallet.getBalance());
+            requestBody.put("amount", amountNeeded);
+            requestBody.put("transactionName", request.getTransactionName());
+
+            String response = restTemplate.postForObject(
+                    "http://localhost:8081/api/setup/sendPaymentNotification",
+                    requestBody, // Pass the map as request body
+                    String.class
+            );
         }
 
         return transactionSuccessful;

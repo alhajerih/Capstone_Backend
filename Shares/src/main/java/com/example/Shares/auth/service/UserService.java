@@ -1,5 +1,7 @@
 package com.example.Shares.auth.service;
 
+import com.example.Shares.auth.bo.LoginResponse;
+import com.example.Shares.auth.bo.otp.GenerateOtpResponse;
 import com.example.Shares.auth.entity.BankCardEntity;
 import com.example.Shares.auth.entity.UserEntity;
 
@@ -10,9 +12,9 @@ public interface UserService {
 
     void registerUser(String civilId, String username, String password);
 
-    String validateOtp(String otp);
+    LoginResponse validateOtp(String otp);
 
-    String generateOtp(String civilId);
+    GenerateOtpResponse generateOtp(String civilId);
 
     void saveSelectedCards(String token, List<Long> selectedCardIds);
 
