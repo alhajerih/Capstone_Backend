@@ -5,6 +5,7 @@ import com.example.Shares.auth.service.UserService;
 import com.example.Shares.hub.bo.HubCardPaymentRequest;
 import com.example.Shares.hub.bo.PaymentRequest;
 import com.example.Shares.hub.entity.HubEntity;
+import com.example.Shares.hub.repository.HubRepository;
 import com.example.Shares.hub.service.HubService;
 import com.example.Shares.wallet.bo.CreateWalletRequest;
 import com.example.Shares.wallet.service.WalletService;
@@ -14,6 +15,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
+import java.util.Optional;
+
 @RestController
 @RequestMapping("/api/user")
 public class HubController {
@@ -24,6 +27,8 @@ public class HubController {
         private UserService userService;
     @Autowired
     private HubService hubService;
+    @Autowired
+    private HubRepository hubRepository;
 
     @PostMapping("/pay")
     public ResponseEntity<String> processPayment(
@@ -82,10 +87,48 @@ public class HubController {
 
     @PostMapping("/pay-with-hubcard-ai")
     public boolean smartPay(@RequestBody HubCardPaymentRequest request) {
-        // Forward the request to the service
         return hubService.smartPayment(request);
     }
 
+    @PostMapping("/pay-with-hubcard-unified")
+    public ResponseEntity<String> unifiedPayWithHubCard(@RequestBody HubCardPaymentRequest request) {
+        // 1) Find the hub by hubCardNumber
+        Optional<HubEntity> hubOpt = hubRepository.findByHubCardNumber(request.getHubCardNumber());
+        if (!hubOpt.isPresent()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body("No hub found with that card number.");
+        }
+
+        HubEntity hub = hubOpt.get();
+
+        // 2) Get the user from the hub
+        UserEntity user = hub.getUser();
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body("No user associated with this hub.");
+        }
+
+        // 3) Check the user’s smartPay setting
+        boolean isSmartPayEnabled = Boolean.TRUE.equals(user.getSmartPay());
+
+        // 4) Decide which service method to call
+        boolean paymentSuccess;
+        if (isSmartPayEnabled) {
+            // If smartPay = true, call the AI-based logic
+            paymentSuccess = hubService.smartPayment(request);
+        } else {
+            // Otherwise, use the existing processPaymentByHubCard
+            paymentSuccess = hubService.processPaymentByHubCard(request);
+        }
+
+        // 5) Return the appropriate response
+        if (paymentSuccess) {
+            return ResponseEntity.ok("Payment successful and recorded.");
+        } else {
+            return ResponseEntity.badRequest()
+                    .body("Payment failed. Please check details and try again.");
+        }
+    }
 
 
 }

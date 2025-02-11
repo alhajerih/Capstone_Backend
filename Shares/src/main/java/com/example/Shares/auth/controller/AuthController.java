@@ -1,11 +1,14 @@
 package com.example.Shares.auth.controller;
 
 import com.example.Shares.auth.bo.LoginResponse;
+import com.example.Shares.auth.bo.SmartPayRequest;
 import com.example.Shares.auth.bo.auth.CreateLoginRequest;
 import com.example.Shares.auth.bo.otp.*;
 import com.example.Shares.auth.entity.BankCardEntity;
 import com.example.Shares.auth.entity.UserEntity;
+import com.example.Shares.auth.repository.UserRepository;
 import com.example.Shares.auth.service.UserService;
+import com.example.Shares.hub.repository.HubRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,7 +22,8 @@ public class AuthController {
 
     @Autowired
     private UserService userService;
-
+    @Autowired
+    private UserRepository userRepository;
 
     @PostMapping("/generate-otp")
     public ResponseEntity<GenerateOtpResponse> generateOtp(@RequestBody GenerateOtpRequest request) {
@@ -102,6 +106,31 @@ public class AuthController {
         String jwt = token.substring(7); // Remove "Bearer " prefix
         UserEntity user = userService.getUserFromToken(jwt);
         return ResponseEntity.ok(user);
+    }
+
+    @PostMapping("/smartpay")
+    public ResponseEntity<String> updateSmartPay(
+            @RequestHeader("Authorization") String token,
+            @RequestBody SmartPayRequest request
+    ) {
+        // 1. Extract the raw JWT (assuming "Bearer <token>")
+        String jwt = token.substring(7);
+
+        // 2. Retrieve the User from the token
+        UserEntity user = userService.getUserFromToken(jwt);
+        if (user == null) {
+            return ResponseEntity.badRequest().body("Invalid user or token.");
+        }
+
+        // 3. Update the 'smartPay' field
+        user.setSmartPay(request.getSmartPay());
+
+        // 4. Persist changes
+        userRepository.save(user);
+
+        return ResponseEntity.ok(
+                "User smartPay updated to: " + request.getSmartPay()
+        );
     }
 
 }

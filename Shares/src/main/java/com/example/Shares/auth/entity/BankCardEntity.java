@@ -26,6 +26,9 @@ public class BankCardEntity implements Serializable {
     private String accountNumber;
     private String cardNumber;
     private Double cardBalance;
+    private String cvv;
+    private String expiryDate;
+
     private String cardType; // e.g., "checking", "savings"
 
     @ManyToOne
@@ -153,5 +156,21 @@ public class BankCardEntity implements Serializable {
 
     public void setCardBalance(Double cardBalance) {
         this.cardBalance = cardBalance;
+    }
+
+    public String getCvv() {
+        return cvv;
+    }
+
+    public void setCvv(String cvv) {
+        this.cvv = cvv;
+    }
+
+    public String getExpiryDate() {
+        return expiryDate;
+    }
+
+    public void setExpiryDate(String expiryDate) {
+        this.expiryDate = expiryDate;
     }
 }

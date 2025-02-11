@@ -24,7 +24,7 @@ public class UserEntity implements Serializable {
     private String phoneNumber;
     private String otp;
     private LocalDateTime otpExpiry;
-
+    private Boolean smartPay = false;
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<BankCardEntity> bankCards = new ArrayList<>();
 
@@ -38,6 +38,14 @@ public class UserEntity implements Serializable {
     private Roles role;
 
     // Getters and Setters
+
+    public Boolean getSmartPay() {
+        return smartPay;
+    }
+
+    public void setSmartPay(Boolean smartPay) {
+        this.smartPay = smartPay;
+    }
 
     public Long getId() {
         return id;
