@@ -6,15 +6,15 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.Map;
 
-@FeignClient(name = "notification-service", url = "http://localhost:8081/api/setup")
+@FeignClient(name = "notification-service")
 public interface Notification {
 
-    @PostMapping("/notification")
+    @PostMapping("/api/setup/notification")
     public String registerToken(@RequestBody String requestBody);
 
-    @PostMapping("/sendPaymentNotification")
+    @PostMapping("/api/setup/sendPaymentNotification")
     public void sendPaymentNotification(@RequestBody Map<String, Object> requestBody);
 
-    @PostMapping("/sendFailureNotification")
+    @PostMapping("/api/setup/sendFailureNotification")
     public void sendFailureNotification (@RequestBody Map<String, Object> requestBody);
 }
