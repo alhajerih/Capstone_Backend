@@ -32,18 +32,18 @@ public class AuthController {
     }
 
     @PostMapping("/validate-otp")
-    public ResponseEntity<LoginResponse> validateOtp(@RequestBody ValidateOtpRequest request) {
-        LoginResponse token = userService.validateOtp(request.getOtp());
-        return ResponseEntity.ok(token); // Return the JWT token
+    public ResponseEntity<String> validateOtp(@RequestBody ValidateOtpRequest request) {
+        String validated = userService.validateOtp(request.getOtp());
+        return ResponseEntity.ok(validated);
     }
 
     @PostMapping("/register")
-    public ResponseEntity<MessageResponse> registerUser(@RequestBody RegisterUserRequest request) {
-
+    public ResponseEntity<LoginResponse> registerUser(@RequestBody RegisterUserRequest request) {
+        LoginResponse register = new LoginResponse();
+        register = userService.registerUser(request.getCivilId(), request.getUsername(), request.getPassword());
         userService.registerUser(request.getCivilId(), request.getUsername(), request.getPassword());
-        MessageResponse messageResponse = new MessageResponse();
-        messageResponse.setMessage("User registered successfully.");
-        return ResponseEntity.ok(messageResponse);
+
+        return ResponseEntity.ok(register);
     }
 
     @PostMapping("/login")

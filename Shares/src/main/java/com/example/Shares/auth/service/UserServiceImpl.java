@@ -65,7 +65,7 @@ public class UserServiceImpl implements UserService {
         return otpResponse;
     }
 
-    public LoginResponse validateOtp(String otp) {
+    public String validateOtp(String otp) {
         // Find the user by OTP
         UserEntity user = userRepository.findByOtp(otp);
         if (user == null) {
@@ -77,13 +77,15 @@ public class UserServiceImpl implements UserService {
             throw new IllegalArgumentException("OTP expired");
         }
 
-        // OTP is valid; generate a JWT token
-        LoginResponse loginResponse = new LoginResponse();
-        loginResponse.setToken(jwtUtil.generateToken(user.getCivilId()));
-        return loginResponse;
+//        // OTP is valid; generate a JWT token
+//
+//        LoginResponse loginResponse = new LoginResponse();
+//        loginResponse.setToken(jwtUtil.generateToken(user.getCivilId()));
+//        loginResponse.setMessage("OTP validated successfully");
+        return "OTP validated successfully";
     }
 
-    public void registerUser(String civilId, String username, String password) {
+    public LoginResponse registerUser(String civilId, String username, String password) {
         UserEntity user = userRepository.findByCivilId(civilId)
                 .orElseThrow(() -> new IllegalArgumentException("Civil ID not found"));
 
@@ -94,6 +96,10 @@ public class UserServiceImpl implements UserService {
         hub.setUser(user);
         user.setHub(hub);
         userRepository.save(user);
+        LoginResponse loginResponse = new LoginResponse();
+        loginResponse.setToken(jwtUtil.generateToken(user.getCivilId()));
+
+        return loginResponse;
     }
 
     public List<BankCardEntity> getBankCards(String token) {

@@ -10,9 +10,9 @@ import java.util.List;
 public interface UserService {
     List<BankCardEntity> getBankCards(String civilId);
 
-    void registerUser(String civilId, String username, String password);
+    LoginResponse registerUser(String civilId, String username, String password);
 
-    LoginResponse validateOtp(String otp);
+    String validateOtp(String otp);
 
     GenerateOtpResponse generateOtp(String civilId);
 

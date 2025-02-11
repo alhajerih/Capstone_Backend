@@ -210,7 +210,7 @@ public class HubService {
     }
 
     @Transactional
-//    @Cacheable(value = "hubCard", key = "#request")
+    @Cacheable(value = "hubCard", key = "#request")
     public boolean processPaymentByHubCard(HubCardPaymentRequest request) {
         // 1) Find the hub by the provided hubCardNumber
         Optional<HubEntity> hubOptional = hubRepository.findByHubCardNumber(request.getHubCardNumber());

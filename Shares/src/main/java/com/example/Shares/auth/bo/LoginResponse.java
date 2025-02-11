@@ -3,6 +3,8 @@ package com.example.Shares.auth.bo;
 public class LoginResponse {
     private String token;
 
+
+
     public String getToken() {
         return token;
     }
