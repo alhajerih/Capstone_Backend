@@ -56,6 +56,7 @@ public class HubController {
             return ResponseEntity.badRequest().body("Payment failed. Please check details and try again.");
         }
     }
+
     @PostMapping("/reset-card")
     public ResponseEntity<?> resetHubCard(
             @RequestHeader("Authorization") String token

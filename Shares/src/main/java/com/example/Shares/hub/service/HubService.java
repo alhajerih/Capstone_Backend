@@ -4,6 +4,7 @@ import com.example.Shares.OpenAi.service.OpenAIService;
 import com.example.Shares.auth.entity.BankCardEntity;
 import com.example.Shares.auth.entity.UserEntity;
 import com.example.Shares.auth.repository.BankCardRepository;
+import com.example.Shares.feign.Notification;
 import com.example.Shares.hub.bo.HubCardPaymentRequest;
 import com.example.Shares.hub.bo.PaymentRequest;
 import com.example.Shares.hub.entity.HubEntity;
@@ -34,7 +35,8 @@ import java.util.stream.Collectors;
 @Service
 public class HubService {
 
-    private  final RestTemplate restTemplate;
+    private final Notification notificationService;
+//    private  final RestTemplate restTemplate;
     @Autowired
     private BankCardRepository cardBankRepository;
 
@@ -48,9 +50,10 @@ public class HubService {
     private TransactionsRepository transactionsRepository;
 //private final NotificationService notificationService;
 
-    public HubService(RestTemplate restTemplate) {
-        this.restTemplate = restTemplate;
-//        this.notificationService = notificationService;
+    @Autowired
+    public HubService(Notification notificationService) {
+//        this.restTemplate = restTemplate;
+        this.notificationService = notificationService;
     }
 
     @Transactional
@@ -270,18 +273,12 @@ public class HubService {
             } else {
                 System.out.println("Transaction canceled: insufficient funds in the selected wallet.");
                 // SEND FAILURE NOTIFICATION
-                // SEND FAILURE NOTIFICATION
                 Map<String, Object> requestBody = new HashMap<>();
                 requestBody.put("amountNeeded", amountNeeded);
                 requestBody.put("transactionName", request.getTransactionName());
                 requestBody.put("failureReason", "insufficient funds in the selected wallet.");
+                notificationService.sendFailureNotification(requestBody);
 
-                String response = restTemplate.postForObject(
-                        "http://localhost:8081/api/setup/sendFailureNotification",
-                        requestBody, // Pass the map as request body
-                        String.class
-                );
-//                notificationService.sendFailureNotification( amountNeeded, request.getTransactionName(), "Insufficient funds.");
                 return false;
             }
 
@@ -303,12 +300,8 @@ public class HubService {
                 requestBody.put("transactionName", request.getTransactionName());
                 requestBody.put("failureReason", "no checking cards linked to this hub.");
 
-                String response = restTemplate.postForObject(
-                        "http://localhost:8081/api/setup/sendFailureNotification",
-                        requestBody, // Pass the map as request body
-                        String.class
-                );
-//                notificationService.sendFailureNotification( amountNeeded, request.getTransactionName(), "No checking cards linked to this hub.");
+                notificationService.sendFailureNotification(requestBody);
+
 
                 return false;
             }
@@ -326,13 +319,8 @@ public class HubService {
                 requestBody.put("amountNeeded", amountNeeded);
                 requestBody.put("transactionName", request.getTransactionName());
                 requestBody.put("failureReason", "Insufficient balance across all linked cards.");
+                notificationService.sendFailureNotification(requestBody);
 
-                String response = restTemplate.postForObject(
-                        "http://localhost:8081/api/setup/sendFailureNotification",
-                        requestBody, // Pass the map as request body
-                        String.class
-                );
-//                notificationService.sendFailureNotification( amountNeeded, request.getTransactionName(), "Insufficient balance across all linked cards.");
 
                 return false;
             }
@@ -399,11 +387,8 @@ public class HubService {
             requestBody.put("amount", amountNeeded);
             requestBody.put("transactionName", request.getTransactionName());
 
-            String response = restTemplate.postForObject(
-                    "http://localhost:8081/api/setup/sendPaymentNotification",
-                    requestBody, // Pass the map as request body
-                    String.class
-            );
+            notificationService.sendPaymentNotification(requestBody);
+
         }
 
         return transactionSuccessful;
@@ -506,6 +491,12 @@ public class HubService {
 
             if (linkedCard == null) {
                 System.out.println("Transaction canceled: no linked card on the chosen wallet.");
+                // SEND FAILURE NOTIFICATION
+                Map<String, Object> requestBody = new HashMap<>();
+                requestBody.put("amountNeeded", amountNeeded);
+                requestBody.put("transactionName", request.getTransactionName());
+                requestBody.put("failureReason", "no linked card on the chosen wallet.");
+                notificationService.sendFailureNotification(requestBody);
                 return false;
             }
 
@@ -534,17 +525,23 @@ public class HubService {
                 hubRepository.save(hub);
 
                 // Send success notification
-//                notificationService.sendPaymentNotification(selectedWallet.getName(),
-//                        selectedWallet.getBalance(), amountNeeded, request.getTransactionName());
+                Map<String, Object> requestBody = new HashMap<>();
+                requestBody.put("walletName", selectedWallet.getName());
+                requestBody.put("walletBalance", selectedWallet.getBalance());
+                requestBody.put("amount", amountNeeded);
+                requestBody.put("transactionName", request.getTransactionName());
+
+                notificationService.sendPaymentNotification(requestBody);
+
                 return true;
             } else {
                 System.out.println("Transaction canceled: insufficient funds in the chosen wallet.");
                 // SEND FAILURE NOTIFICATION
-//                notificationService.sendFailureNotification(
-//                        amountNeeded,
-//                        request.getTransactionName(),
-//                        "Insufficient funds in wallet: " + selectedWallet.getName()
-//                );
+                Map<String, Object> requestBody = new HashMap<>();
+                requestBody.put("amountNeeded", amountNeeded);
+                requestBody.put("transactionName", request.getTransactionName());
+                requestBody.put("failureReason", "insufficient funds in the chosen wallet.");
+                notificationService.sendFailureNotification(requestBody);
                 return false;
             }
 
@@ -563,11 +560,11 @@ public class HubService {
             if (checkingCards.isEmpty()) {
                 System.out.println("Transaction canceled: no checking cards linked to this hub.");
                 // SEND FAILURE NOTIFICATION
-//                notificationService.sendFailureNotification(
-//                        amountNeeded,
-//                        request.getTransactionName(),
-//                        "No checking cards linked to this hub."
-//                );
+                Map<String, Object> requestBody = new HashMap<>();
+                requestBody.put("amountNeeded", amountNeeded);
+                requestBody.put("transactionName", request.getTransactionName());
+                requestBody.put("failureReason", "no checking cards linked to this hub.");
+                notificationService.sendFailureNotification(requestBody);
                 return false;
             }
 
@@ -577,11 +574,12 @@ public class HubService {
 
             if (totalCheckingBalance < amountNeeded) {
                 System.out.println("Transaction canceled: insufficient total checking balance.");
-//                notificationService.sendFailureNotification(
-//                        amountNeeded,
-//                        request.getTransactionName(),
-//                        "Insufficient balance across all linked cards."
-//                );
+                // SEND FAILURE NOTIFICATION
+                Map<String, Object> requestBody = new HashMap<>();
+                requestBody.put("amountNeeded", amountNeeded);
+                requestBody.put("transactionName", request.getTransactionName());
+                requestBody.put("failureReason", "insufficient total checking balance.");
+                notificationService.sendFailureNotification(requestBody);
                 return false;
             }
 
@@ -595,6 +593,14 @@ public class HubService {
 
             // For brevity, assume the multi-card distribution is identical to your original snippet.
             // ...
+            // Send success notification
+            Map<String, Object> requestBody = new HashMap<>();
+            requestBody.put("walletName", selectedWallet.getName());
+            requestBody.put("walletBalance", selectedWallet.getBalance());
+            requestBody.put("amount", amountNeeded);
+            requestBody.put("transactionName", request.getTransactionName());
+
+            notificationService.sendPaymentNotification(requestBody);
             return true;
         }
     }

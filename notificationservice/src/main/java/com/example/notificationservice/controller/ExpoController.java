@@ -34,6 +34,7 @@ public class ExpoController {
     @PostMapping("/notification")
     public String registerToken(@RequestBody String requestBody) {
         System.out.println("requestBody: " + requestBody);
+
         try {
             // Parse JSON
             JsonNode jsonNode = objectMapper.readTree(requestBody);
@@ -44,24 +45,30 @@ public class ExpoController {
                 return "Invalid request: Token is missing";
             }
 
-            // Extract userID
-            Long userId = jsonNode.has("userId") ? jsonNode.get("userId").asLong() : null;
+            // Extract userID safely
+            Long userId = (jsonNode.has("userId") && !jsonNode.get("userId").isNull()) ? jsonNode.get("userId").asLong() : null;
             if (userId == null) {
                 return "Invalid request: User ID is missing";
             }
 
-
-
-
-            // Check if this token is already registered for any user
+            // Check if the token is already registered
             Optional<ExpoToken> existingTokenOptional = expoTokenRepository.findByToken(token);
+
             if (existingTokenOptional.isPresent()) {
                 ExpoToken existingToken = existingTokenOptional.get();
 
-
+                // If the token belongs to the same user, do nothing
+                if (existingToken.getUserId().equals(userId)) {
+                    return "Token already registered for this user, no changes made.";
+                } else {
+                    // If the token belongs to a different user, update it
+                    existingToken.setUserId(userId);
+                    expoTokenRepository.save(existingToken);
+                    return "Token ownership updated to the new user";
+                }
             }
 
-            // Check if this user already has a registered token
+            // Check if the user already has a registered token
             Optional<ExpoToken> userTokenOptional = expoTokenRepository.findByUserId(userId);
             if (userTokenOptional.isPresent()) {
                 ExpoToken userToken = userTokenOptional.get();
@@ -69,7 +76,6 @@ public class ExpoController {
                 // If the token is different, update it
                 if (!userToken.getToken().equals(token)) {
                     userToken.setToken(token);
-                    userToken.setUserId(userId);
                     expoTokenRepository.save(userToken);
                     return "User's token updated successfully";
                 } else {
@@ -80,6 +86,7 @@ public class ExpoController {
             // If neither token nor user exists, create a new record
             ExpoToken newToken = new ExpoToken();
             newToken.setToken(token);
+            newToken.setUserId(userId);
             expoTokenRepository.save(newToken);
             return "Token registered successfully";
 
@@ -88,6 +95,7 @@ public class ExpoController {
             return "Error processing request: " + e.getMessage();
         }
     }
+
 
     @PostMapping("/sendPaymentNotification")
     public void sendPaymentNotification(@RequestBody Map<String, Object> requestBody) {
