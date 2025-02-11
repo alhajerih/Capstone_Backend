@@ -80,6 +80,14 @@ public class HubController {
         }
     }
 
+    @PostMapping("/pay-with-hubcard-ai")
+    public boolean smartPay(@RequestBody HubCardPaymentRequest request) {
+        // Forward the request to the service
+        return hubService.smartPayment(request);
+    }
+
+
+
 }
 
 
