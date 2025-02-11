@@ -19,10 +19,10 @@ public class OpenAIController {
         this.openAIService = openAIService;
     }
 
-    @PostMapping("/api/v1/user/chat")
-    public ResponseEntity<Map<String, Object>> getChatResponse(@RequestBody Map<String, String> request) {
-        String prompt = request.get("prompt");
-        Map<String, Object> response = openAIService.getChatGPTResponse(prompt);
-        return ResponseEntity.ok(response);
-    }
+//    @PostMapping("/api/v1/user/chat")
+//    public ResponseEntity<Map<String, Object>> getChatResponse(@RequestBody Map<String, String> request) {
+//        String prompt = request.get("prompt");
+//        Map<String, Object> response = openAIService.getChatGPTResponse(prompt);
+//        return ResponseEntity.ok(response);
+//    }
 }
