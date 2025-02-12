@@ -1,5 +1,7 @@
 package com.example.Shares.hub.controller;
 
+import com.example.Shares.QRcode.QRCodeEntity;
+import com.example.Shares.QRcode.QRCodeService;
 import com.example.Shares.auth.entity.UserEntity;
 import com.example.Shares.auth.service.UserService;
 import com.example.Shares.hub.bo.HubCardPaymentRequest;
@@ -29,6 +31,8 @@ public class HubController {
     private HubService hubService;
     @Autowired
     private HubRepository hubRepository;
+    @Autowired
+    private QRCodeService qrCodeService;
 
     @PostMapping("/pay")
     public ResponseEntity<String> processPayment(
@@ -132,6 +136,12 @@ public class HubController {
     }
 
 
+    // Endpoint to save QR code
+    @PostMapping("/qrcode")
+    public ResponseEntity<QRCodeEntity> saveQRCode(@RequestBody QRCodeEntity qrCodeEntity) {
+        QRCodeEntity savedQRCode = qrCodeService.saveQRCode(qrCodeEntity);
+        return ResponseEntity.ok(savedQRCode);
+    }
 }
 
 
