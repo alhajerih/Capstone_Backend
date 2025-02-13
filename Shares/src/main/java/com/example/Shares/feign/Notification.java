@@ -17,4 +17,5 @@ public interface Notification {
 
     @PostMapping("/api/setup/sendFailureNotification")
     public void sendFailureNotification (@RequestBody Map<String, Object> requestBody);
+
 }

@@ -3,6 +3,7 @@ package com.example.notificationservice.controller;
 import com.example.notificationservice.entity.ExpoToken;
 import com.example.notificationservice.repository.ExpoTokenRepository;
 import com.example.notificationservice.service.NotificationService;
+import com.example.notificationservice.service.WebSocketHandler;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,10 +26,12 @@ public class ExpoController {
 
     private final ObjectMapper objectMapper;
     private final NotificationService notificationService;
-    public ExpoController(ExpoTokenRepository expoTokenRepository, ObjectMapper objectMapper, NotificationService notificationService) {
+    private final WebSocketHandler webSocketHandler;
+    public ExpoController(ExpoTokenRepository expoTokenRepository, ObjectMapper objectMapper, NotificationService notificationService, WebSocketHandler webSocketHandler) {
         this.expoTokenRepository = expoTokenRepository;
         this.objectMapper = objectMapper;
         this.notificationService = notificationService;
+        this.webSocketHandler = webSocketHandler;
     }
 
     @PostMapping("/notification")
@@ -147,4 +150,5 @@ public class ExpoController {
             System.out.println("No Expo Push Token found for this store owner.");
         }
     }
+
 }

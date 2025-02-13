@@ -16,7 +16,7 @@ public class QRCodeService {
     }
 
     // Find QR code by transaction ID
-    public Optional<QRCodeEntity> findByTransactionId(Long transactionId) {
+    public Optional<QRCodeEntity> findByTransactionId(String transactionId) {
         return qrCodeRepository.findByTransactionId(transactionId);
     }
 }

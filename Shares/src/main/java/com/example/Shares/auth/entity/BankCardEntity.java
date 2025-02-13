@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-
+@Table(name = "bank_card_entity")
 public class BankCardEntity implements Serializable {
     // Secure random number generator
 

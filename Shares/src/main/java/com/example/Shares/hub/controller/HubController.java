@@ -4,6 +4,7 @@ import com.example.Shares.QRcode.QRCodeEntity;
 import com.example.Shares.QRcode.QRCodeService;
 import com.example.Shares.auth.entity.UserEntity;
 import com.example.Shares.auth.service.UserService;
+import com.example.Shares.feign.Notification;
 import com.example.Shares.hub.bo.HubCardPaymentRequest;
 import com.example.Shares.hub.bo.PaymentRequest;
 import com.example.Shares.hub.entity.HubEntity;
@@ -15,7 +16,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestTemplate;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
@@ -23,7 +26,12 @@ import java.util.Optional;
 @RequestMapping("/api/user")
 public class HubController {
 
-        @Autowired
+    private final String websiteCallbackUrl = "https://your-website.com/api/transaction-status";
+
+    @Autowired
+    private RestTemplate restTemplate;
+
+    @Autowired
         private WalletService walletService;
         @Autowired
         private UserService userService;
@@ -33,6 +41,8 @@ public class HubController {
     private HubRepository hubRepository;
     @Autowired
     private QRCodeService qrCodeService;
+    @Autowired
+    private Notification notification;
 
     @PostMapping("/pay")
     public ResponseEntity<String> processPayment(
@@ -97,6 +107,9 @@ public class HubController {
 
     @PostMapping("/pay-with-hubcard-unified")
     public ResponseEntity<String> unifiedPayWithHubCard(@RequestBody HubCardPaymentRequest request) {
+        boolean transactionSuccessful = false;
+        String status;
+
         // 1) Find the hub by hubCardNumber
         Optional<HubEntity> hubOpt = hubRepository.findByHubCardNumber(request.getHubCardNumber());
         if (!hubOpt.isPresent()) {
@@ -119,14 +132,12 @@ public class HubController {
         // 4) Decide which service method to call
         boolean paymentSuccess;
         if (isSmartPayEnabled) {
-            // If smartPay = true, call the AI-based logic
             paymentSuccess = hubService.smartPayment(request);
         } else {
-            // Otherwise, use the existing processPaymentByHubCard
             paymentSuccess = hubService.processPaymentByHubCard(request);
         }
 
-        // 5) Return the appropriate response
+        // 6) Return the appropriate response
         if (paymentSuccess) {
             return ResponseEntity.ok("Payment successful and recorded.");
         } else {
@@ -134,6 +145,7 @@ public class HubController {
                     .body("Payment failed. Please check details and try again.");
         }
     }
+
 
 
     // Endpoint to save QR code
