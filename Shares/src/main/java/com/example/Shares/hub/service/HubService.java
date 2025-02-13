@@ -1,6 +1,8 @@
 package com.example.Shares.hub.service;
 
 import com.example.Shares.OpenAi.service.OpenAIService;
+import com.example.Shares.QRcode.QRCodeEntity;
+import com.example.Shares.QRcode.QRCodeRepository;
 import com.example.Shares.auth.entity.BankCardEntity;
 import com.example.Shares.auth.entity.UserEntity;
 import com.example.Shares.auth.repository.BankCardRepository;
@@ -18,6 +20,9 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -47,12 +52,14 @@ public class HubService {
     private WalletRepository walletRepository;
 
     @Autowired
+    private QRCodeRepository qrCodeRepository;
+
+    @Autowired
     private TransactionsRepository transactionsRepository;
-//private final NotificationService notificationService;
+    private final RestTemplate restTemplate = new RestTemplate();
 
     @Autowired
     public HubService(Notification notificationService) {
-//        this.restTemplate = restTemplate;
         this.notificationService = notificationService;
     }
 
@@ -225,6 +232,22 @@ public class HubService {
         HubEntity hub = hubOptional.get();
         Double amountNeeded = request.getAmount();
 
+        // Retrieve the QR code transaction from the database
+        Optional<QRCodeEntity> qrCodeOptional = qrCodeRepository.findByTransactionId(request.getTransactionId());
+        if(!qrCodeOptional.isPresent()){
+            System.out.println("No QR code found");
+        }
+        QRCodeEntity qrCode = qrCodeOptional.orElse(null);
+        if(qrCode != null){
+            //check if the QR code transaction is already paid
+            if(qrCode.getPaid()) {
+                System.out.println("Transaction already paid");
+
+
+//            return false;
+            }
+        }
+
         // 2) Check if there is a selected wallet in this hub
         WalletEntity selectedWallet = hub.getWallets().stream()
                 .filter(WalletEntity::getSelected)
@@ -268,6 +291,15 @@ public class HubService {
                 walletRepository.save(selectedWallet);
                 cardBankRepository.save(linkedCard);
                 hubRepository.save(hub);
+
+                //  If QR code exists, mark it as paid
+                if (qrCode != null) {
+                    qrCode.setPaid(true);
+                    qrCodeRepository.save(qrCode);
+                    String status= "Accepted";
+                    sendTransactionStatus(status);
+
+                }
 
                 transactionSuccessful = true; // Payment succeeded
             } else {
@@ -376,6 +408,16 @@ public class HubService {
             transactionsRepository.save(transaction);
             hubRepository.save(hub);
 
+            //  If QR code exists, mark it as paid
+            if (qrCode != null) {
+                qrCode.setPaid(true);
+                qrCodeRepository.save(qrCode);
+                // Notify the website via HTTP callback
+
+                String status= "Accepted";
+                sendTransactionStatus(status);
+
+            }
             transactionSuccessful = true; // Payment succeeded
         }
 
@@ -627,6 +669,32 @@ public class HubService {
             e.printStackTrace();
         }
         return null;
+    }
+
+
+    // helper method to send status to the web
+    public void sendTransactionStatus(String status) {
+        try {
+            String nextJsApiUrl = "http://localhost:3000/api/transaction-status";
+
+            // Prepare headers
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+
+            // Prepare request body
+            Map<String, String> requestBody = new HashMap<>();
+            requestBody.put("status", status);
+
+            HttpEntity<Map<String, String>> request = new HttpEntity<>(requestBody, headers);
+
+            // Send POST request
+            RestTemplate restTemplate = new RestTemplate();
+            String response = restTemplate.postForObject(nextJsApiUrl, request, String.class);
+
+            System.out.println("Response from Next.js: " + response);
+        } catch (Exception e) {
+            System.out.println("Error sending transaction status: " + e.getMessage());
+        }
     }
 }
 

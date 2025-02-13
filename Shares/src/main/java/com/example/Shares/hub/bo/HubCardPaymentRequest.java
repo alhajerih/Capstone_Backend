@@ -4,7 +4,7 @@ public class HubCardPaymentRequest {
     private String hubCardNumber;
     private Double amount;
     private String transactionName;
-
+    private String transactionId;
 
     // Getters and Setters
     public String getHubCardNumber() {
@@ -29,6 +29,14 @@ public class HubCardPaymentRequest {
 
     public void setTransactionName(String transactionName) {
         this.transactionName = transactionName;
+    }
+
+    public String getTransactionId() {
+        return transactionId;
+    }
+
+    public void setTransactionId(String transactionId) {
+        this.transactionId = transactionId;
     }
 
     @Override
