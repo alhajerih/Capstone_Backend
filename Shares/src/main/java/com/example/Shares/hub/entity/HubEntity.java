@@ -201,4 +201,21 @@ public class HubEntity implements Serializable {
     public void setTransactions(List<TransactionsEntity> transactions) {
         this.transactions = transactions;
     }
+
+    @Override
+    public String toString() {
+        return "HubEntity{" +
+                "id=" + id +
+                ", isActive=" + isActive +
+                ", savingsBalance=" + savingsBalance +
+                ", checkingsBalance=" + checkingsBalance +
+                ", hubCardNumber='" + hubCardNumber + '\'' +
+                ", expDate='" + expDate + '\'' +
+                ", cvv='" + cvv + '\'' +
+                ", user=" + user +
+                ", wallets=" + wallets +
+                ", transactions=" + transactions +
+                ", linkedCards=" + linkedCards +
+                '}';
+    }
 }

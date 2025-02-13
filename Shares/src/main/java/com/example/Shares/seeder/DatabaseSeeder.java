@@ -165,6 +165,7 @@ public class DatabaseSeeder implements ApplicationRunner {
         wallet.setBalance(1000.0);
         wallet.setCategory("E-shopping");
         wallet.setName("Shopping wallet");
+        wallet.setSelected(true);
         wallet.setHub(user.getHub());
         wallet.setPatternId(5L);
         wallet.setColorId(4L);

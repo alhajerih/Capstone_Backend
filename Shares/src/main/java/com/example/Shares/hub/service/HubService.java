@@ -224,12 +224,13 @@ public class HubService {
     public boolean processPaymentByHubCard(HubCardPaymentRequest request) {
         // 1) Find the hub by the provided hubCardNumber
         Optional<HubEntity> hubOptional = hubRepository.findByHubCardNumber(request.getHubCardNumber());
-        if (!hubOptional.isPresent()) {
+        if (hubOptional == null || !hubOptional.isPresent()) {
             System.out.println("Transaction failed: No hub found with the provided card number.");
             return false;
         }
 
         HubEntity hub = hubOptional.get();
+        System.out.println("Hub found: " + hub.getHubCardNumber());
         Double amountNeeded = request.getAmount();
 
         // Retrieve the QR code transaction from the database
