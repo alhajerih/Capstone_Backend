@@ -92,9 +92,15 @@ public class UserServiceImpl implements UserService {
 
         user.setUsername(username);
         user.setPassword(passwordEncoder.encode(password));
-        HubEntity hub = new HubEntity();
-        hub.setUser(user);
-        user.setHub(hub);
+
+        //Only create a hub for new users
+        if(user.getHub()==null) {
+            HubEntity hub = new HubEntity();
+
+            hub.setUser(user);
+            user.setHub(hub);
+        }
+
         userRepository.save(user);
         LoginResponse loginResponse = new LoginResponse();
         loginResponse.setToken(jwtUtil.generateToken(user.getCivilId()));

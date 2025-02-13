@@ -21,6 +21,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 import org.slf4j.Logger;
 
+import java.util.List;
 import java.util.Optional;
 
 @Component
@@ -155,8 +156,11 @@ public class DatabaseSeeder implements ApplicationRunner {
 
         UserEntity user = userOptional.get();
         logger.info("User found for wallet: " + user.getCivilId());
+        Optional<BankCardEntity> bankCardOptional = bankCardRepository.findByCardNumber("1234567890123456");
+        BankCardEntity bankCard = bankCardOptional.get();
 
         WalletEntity wallet = new WalletEntity();
+        wallet.setLinkedCards(List.of(bankCard));
         wallet.setAllocation(1000.0);
         wallet.setBalance(1000.0);
         wallet.setCategory("E-shopping");
