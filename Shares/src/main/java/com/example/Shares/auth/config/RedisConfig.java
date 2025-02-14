@@ -23,8 +23,11 @@ public class RedisConfig {
     @Bean
     public JedisConnectionFactory connectionFactory() {
         RedisStandaloneConfiguration configuration = new RedisStandaloneConfiguration();
-        configuration.setHostName("127.0.0.1");
-        configuration.setPort(6379);
+
+        // 🔹 Use Docker service name instead of "127.0.0.1"
+        configuration.setHostName(System.getenv().getOrDefault("SPRING_REDIS_HOST", "redis"));
+        configuration.setPort(Integer.parseInt(System.getenv().getOrDefault("SPRING_REDIS_PORT", "6379")));
+
         return new JedisConnectionFactory(configuration);
     }
 
@@ -39,4 +42,12 @@ public class RedisConfig {
                 .build();
     }
 
+    @Bean
+    public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory redisConnectionFactory) {
+        RedisTemplate<String, Object> template = new RedisTemplate<>();
+        template.setConnectionFactory(redisConnectionFactory);
+        template.setKeySerializer(new StringRedisSerializer());
+        template.setValueSerializer(new JdkSerializationRedisSerializer());
+        return template;
+    }
 }

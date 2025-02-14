@@ -23,6 +23,7 @@ public class UserEntity implements Serializable {
     private String password;
     private String phoneNumber;
     private String otp;
+   private String pictureUrl;
     private LocalDateTime otpExpiry;
     private Boolean smartPay = false;
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -125,5 +126,13 @@ public class UserEntity implements Serializable {
 
     public void setRole(Roles role) {
         this.role = role;
+    }
+
+    public String getPictureUrl() {
+        return pictureUrl;
+    }
+
+    public void setPictureUrl(String pictureUrl) {
+        this.pictureUrl = pictureUrl;
     }
 }
