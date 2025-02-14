@@ -97,6 +97,7 @@ public class DatabaseSeeder implements ApplicationRunner {
         card.setCvv("222");
         card.setAccountNumber("4433547405");
         card.setExpiryDate("12/30");
+        card.setSelected(true);
         card.setHub(hub);
         card.setUser(user);
         bankCardRepository.save(card);

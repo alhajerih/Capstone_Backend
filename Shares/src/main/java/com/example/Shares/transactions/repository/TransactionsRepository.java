@@ -1,19 +1,17 @@
 package com.example.Shares.transactions.repository;//package com.example.Shares.wallet.repository;
 
-import com.example.Shares.auth.entity.BankCardEntity;
 import com.example.Shares.hub.entity.HubEntity;
 import com.example.Shares.transactions.entity.TransactionsEntity;
+import com.example.Shares.wallet.entity.WalletEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
-
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import java.util.List;
 
 
 public interface TransactionsRepository extends JpaRepository<TransactionsEntity, Long> {
-//    List<BankCardEntity> findByUserId(Long userId);
     List<TransactionsEntity> findByHub(HubEntity hub);
-//    List<TransactionsEntity> findByHubOrderByTimestampDesc(HubEntity hub);
-
-
+    Page <TransactionsEntity> findByWalletUsed(WalletEntity walletUsed , Pageable pageable);
 }
 
 

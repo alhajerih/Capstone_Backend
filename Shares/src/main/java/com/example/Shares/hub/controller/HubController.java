@@ -147,6 +147,29 @@ public class HubController {
         }
     }
 
+
+    @GetMapping("/Hub-transactions")
+    public ResponseEntity<?> getTransactionsForUser(@RequestHeader("Authorization") String token) {
+        try {
+            // 1) Parse the JWT from "Bearer ..."
+            String jwt = token.substring(7);
+
+            // 2) Get the current user from the token
+            UserEntity currentUser = userService.getUserFromToken(jwt);
+            if (currentUser == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body("Invalid user token or user not found.");
+            }
+
+            // 3) Call the service to get transactions
+            return ResponseEntity.ok(hubService.getTransactionsForUser(currentUser));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Error getting transactions: " + e.getMessage());
+        }
+    }
+
+
+
     // Endpoint to save QR code
     @PostMapping("/qrcode")
     public ResponseEntity<QRCodeEntity> saveQRCode(@RequestBody QRCodeEntity qrCodeEntity) {
