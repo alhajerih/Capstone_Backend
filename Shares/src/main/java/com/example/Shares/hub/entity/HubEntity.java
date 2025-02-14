@@ -32,6 +32,7 @@ public class HubEntity implements Serializable {
     private String hubCardNumber;
     private String expDate;
     private String cvv;
+    private Integer cardTheme = 1; // Default theme is 1
 
     @OneToOne
     @JoinColumn(name = "user_id", nullable = false)
@@ -168,6 +169,16 @@ public class HubEntity implements Serializable {
 
     public void setCvv(String cvv) {
         this.cvv = cvv;
+    }
+
+    public Integer getCardTheme() {
+        return cardTheme;
+    }
+
+    public void setCardTheme(Integer cardTheme) {
+        if (cardTheme >= 1 && cardTheme <= 6) {
+            this.cardTheme = cardTheme;
+        }
     }
 
     public UserEntity getUser() {

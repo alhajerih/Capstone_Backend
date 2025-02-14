@@ -5,6 +5,7 @@ import com.example.Shares.QRcode.QRCodeService;
 import com.example.Shares.auth.entity.UserEntity;
 import com.example.Shares.auth.service.UserService;
 import com.example.Shares.feign.Notification;
+import com.example.Shares.hub.bo.CardThemeRequest;
 import com.example.Shares.hub.bo.HubCardPaymentRequest;
 import com.example.Shares.hub.bo.PaymentRequest;
 import com.example.Shares.hub.entity.HubEntity;
@@ -126,7 +127,7 @@ public class HubController {
                     .body("No user associated with this hub.");
         }
 
-        // 3) Check the user’s smartPay setting
+        // 3) Check the user's smartPay setting
         boolean isSmartPayEnabled = Boolean.TRUE.equals(user.getSmartPay());
 
         // 4) Decide which service method to call
@@ -146,13 +147,84 @@ public class HubController {
         }
     }
 
-
-
     // Endpoint to save QR code
     @PostMapping("/qrcode")
     public ResponseEntity<QRCodeEntity> saveQRCode(@RequestBody QRCodeEntity qrCodeEntity) {
         QRCodeEntity savedQRCode = qrCodeService.saveQRCode(qrCodeEntity);
         return ResponseEntity.ok(savedQRCode);
+    }
+
+    @PostMapping("/update-card-theme")
+    public ResponseEntity<?> updateCardTheme(
+            @RequestHeader("Authorization") String token,
+            @RequestBody CardThemeRequest request
+    ) {
+        try {
+            String jwt = token.substring(7);
+            UserEntity currentUser = userService.getUserFromToken(jwt);
+            
+            if (currentUser == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body("Invalid user token.");
+            }
+
+            HubEntity hub = currentUser.getHub();
+            if (hub == null) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body("No hub found for user.");
+            }
+
+            // Validate theme number
+            if (request.getTheme() < 1 || request.getTheme() > 6) {
+                return ResponseEntity.badRequest()
+                        .body("Theme must be between 1 and 6.");
+            }
+
+            hub.setCardTheme(request.getTheme());
+            hubRepository.save(hub);
+
+            // Return card details along with the updated theme
+            Map<String, Object> response = new HashMap<>();
+            response.put("cardNumber", hub.getHubCardNumber());
+            response.put("theme", hub.getCardTheme());
+
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            return ResponseEntity.badRequest()
+                    .body("Error updating card theme: " + e.getMessage());
+        }
+    }
+
+    @GetMapping("/card-details")
+    public ResponseEntity<?> getCardDetails(
+            @RequestHeader("Authorization") String token
+    ) {
+        try {
+            String jwt = token.substring(7);
+            UserEntity currentUser = userService.getUserFromToken(jwt);
+            
+            if (currentUser == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body("Invalid user token.");
+            }
+
+            HubEntity hub = currentUser.getHub();
+            if (hub == null) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body("No hub found for user.");
+            }
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("cardNumber", hub.getHubCardNumber());
+            response.put("theme", hub.getCardTheme());
+
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            return ResponseEntity.badRequest()
+                    .body("Error retrieving card details: " + e.getMessage());
+        }
     }
 }
 
