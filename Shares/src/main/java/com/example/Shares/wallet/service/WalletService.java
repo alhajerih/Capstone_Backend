@@ -4,6 +4,8 @@ import com.example.Shares.auth.entity.BankCardEntity;
 import com.example.Shares.auth.entity.UserEntity;
 import com.example.Shares.hub.entity.HubEntity;
 import com.example.Shares.hub.repository.HubRepository;
+import com.example.Shares.transactions.entity.TransactionsEntity;
+import com.example.Shares.transactions.repository.TransactionsRepository;
 import com.example.Shares.wallet.bo.CreateWalletRequest;
 import com.example.Shares.wallet.bo.UpdateWalletRequest;
 import com.example.Shares.wallet.entity.WalletEntity;
@@ -12,11 +14,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 @Service
 public class WalletService {
 
@@ -25,6 +27,10 @@ public class WalletService {
 
     @Autowired
     private HubRepository hubRepository;
+
+    @Autowired
+    private TransactionsRepository transactionsRepository;
+
 
     @Transactional
     public void createWallet(CreateWalletRequest request, UserEntity user) {
@@ -105,20 +111,7 @@ public class WalletService {
         selectedWallet.setSelected(true);
         walletRepository.saveAll(hub.getWallets());
     }
-//    public boolean processTransaction(UserEntity user, double amount) {
-//        WalletEntity selectedWallet = user.getHub().getWallets().stream()
-//                .filter(WalletEntity::getSelected)
-//                .findFirst()
-//                .orElse(null);
-//
-//        if (selectedWallet != null && selectedWallet.getBalance() >= amount) {
-//            selectedWallet.setBalance(selectedWallet.getBalance() - amount);
-//            walletRepository.save(selectedWallet);
-//            return true;
-//        } else {
-//            return false; // Insufficient funds or no selected wallet
-//        }
-//    }
+
 
 
 
