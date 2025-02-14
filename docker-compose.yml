@@ -1,3 +1,9 @@
+version: '3.8'
+
+networks:
+  my_network:
+    driver: bridge
+
 services:
   postgres:
     image: postgres
@@ -11,6 +17,8 @@ services:
       POSTGRES_DB: postgres
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    networks:
+      - my_network
 
   pgadmin:
     image: dpage/pgadmin4
@@ -23,6 +31,19 @@ services:
       PGADMIN_DEFAULT_PASSWORD: admin
     volumes:
       - pgadmin_data:/var/lib/pgadmin
+    networks:
+      - my_network
+
+  redis:
+    image: redis:latest
+    container_name: redis_container
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - my_network
 
   eureka-server:
     build: ./eureka-server
@@ -31,6 +52,8 @@ services:
       - "8761:8761"
     environment:
       - SPRING_PROFILES_ACTIVE=docker
+    networks:
+      - my_network
 
   api-gateway:
     build: ./api-gateway
@@ -39,34 +62,73 @@ services:
       - "8765:8765"
     environment:
       - SPRING_PROFILES_ACTIVE=docker
-      - LOGGING_LEVEL_ORG_SPRINGFRAMEWORK_SECURITY=TRACE
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
+      - SPRING_REDIS_HOST=redis
+      - SPRING_REDIS_PORT=6379
     depends_on:
       - eureka-server
+      - redis
+    networks:
+      - my_network
 
   shares-app:
     build: ./Shares
     container_name: shares_container
     ports:
-      - "8081:8081"
+      - "8080:8080"
     depends_on:
       - postgres
+      - eureka-server
+      - redis
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/postgres
-      SPRING_DATASOURCE_USERNAME: postgres
-      SPRING_DATASOURCE_PASSWORD: postgres
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/postgres
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=postgres
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
+      - SPRING_REDIS_HOST=redis
+      - SPRING_REDIS_PORT=6379
+    networks:
+      - my_network
 
-  authservice-app:
-    build: ./AuthService
-    container_name: authservice_container
+  notificationservice-app:
+    build: ./notificationservice
+    container_name: notificationservice_container
     ports:
-      - "8087:8087"
+      - "8081:8081"
     depends_on:
       - shares-app
+      - postgres
+      - eureka-server
+      - redis
     environment:
-      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
       - SPRING_PROFILES_ACTIVE=docker
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/postgres
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=postgres
+      - SPRING_REDIS_HOST=redis
+      - SPRING_REDIS_PORT=6379
+    networks:
+      - my_network
+
+#  expo-app:
+#    build: ./Capstone_MobileFrontend  # Path to Expo project
+#    container_name: expo_app_container
+#    ports:
+#      - "19000:19000"  # Metro bundler
+#      - "19001:19001"  # Expo DevTools
+#      - "19002:19002"  # Expo WebSocket connection
+#    volumes:
+#      - ./Capstone_MobileFrontend:/app  # Mount project files for live changes
+#      - /app/node_modules
+#    stdin_open: true
+#    tty: true
+#    depends_on:
+#      - api-gateway
+#    networks:
+#      - my_network
 
 volumes:
   postgres_data:
   pgadmin_data:
+  redis_data:

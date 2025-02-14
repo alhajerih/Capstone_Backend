@@ -85,6 +85,12 @@ public class HubService {
 
             if (linkedCard == null) {
                 System.out.println("Transaction canceled due to no linked card on selected wallet.");
+                // SEND FAILURE NOTIFICATION
+                Map<String, Object> requestBody = new HashMap<>();
+                requestBody.put("amountNeeded", amountNeeded);
+                requestBody.put("transactionName", request.getTransactionName());
+                requestBody.put("failureReason", "Transaction canceled due to no linked card on selected wallet");
+                notificationService.sendFailureNotification(requestBody);
                 return false;
             }
 
@@ -226,6 +232,7 @@ public class HubService {
         Optional<HubEntity> hubOptional = hubRepository.findByHubCardNumber(request.getHubCardNumber());
         if (hubOptional == null || !hubOptional.isPresent()) {
             System.out.println("Transaction failed: No hub found with the provided card number.");
+
             return false;
         }
 
@@ -245,7 +252,7 @@ public class HubService {
                 System.out.println("Transaction already paid");
 
 
-//            return false;
+            return false;
             }
         }
 

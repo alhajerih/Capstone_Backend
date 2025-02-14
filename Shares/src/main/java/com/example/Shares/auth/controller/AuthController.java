@@ -10,9 +10,12 @@ import com.example.Shares.auth.repository.UserRepository;
 import com.example.Shares.auth.service.UserService;
 import com.example.Shares.hub.repository.HubRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import org.springframework.core.io.Resource;
 import java.util.List;
 
 @RestController
@@ -106,6 +109,33 @@ public class AuthController {
         String jwt = token.substring(7); // Remove "Bearer " prefix
         UserEntity user = userService.getUserFromToken(jwt);
         return ResponseEntity.ok(user);
+    }
+
+    @PostMapping("/add-pic")
+    public  ResponseEntity<?> addPicture(@RequestHeader("Authorization") String token, @RequestParam("file") MultipartFile file) {
+        String jwt = token.substring(7);
+        UserEntity user = userService.getUserFromToken(jwt);
+        if (user == null) {
+            return ResponseEntity.badRequest().body("Invalid user or token.");
+        }
+
+        String pictureUrl = userService.savePicture(user,file);
+        if (pictureUrl == null) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Failed to upload the picture.");
+        }
+        return ResponseEntity.ok(pictureUrl);
+    }
+    @GetMapping("/profile-pic")
+    public ResponseEntity<Resource> getUserProfilePicture(@RequestHeader("Authorization") String token) {
+        // Extract user from token
+        String jwt = token.substring(7);
+        UserEntity user = userService.getUserFromToken(jwt);
+
+        if (user == null || user.getPictureUrl() == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
+        return userService.getProfilePicture(user);
     }
 
     @PostMapping("/smartpay")

@@ -14,10 +14,23 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
+
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
 import javax.transaction.Transactional;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -61,7 +74,7 @@ public class UserServiceImpl implements UserService {
         // Send OTP via Twilio
         twilioService.sendSms(user.getPhoneNumber(), otp);
         GenerateOtpResponse otpResponse = new GenerateOtpResponse();
-        otpResponse.setOtp("OTP sent to registered phone number: " +otp);
+        otpResponse.setOtp("OTP sent to registered phone number: " + otp);
         return otpResponse;
     }
 
@@ -94,7 +107,7 @@ public class UserServiceImpl implements UserService {
         user.setPassword(passwordEncoder.encode(password));
 
         //Only create a hub for new users
-        if(user.getHub()==null) {
+        if (user.getHub() == null) {
             HubEntity hub = new HubEntity();
 
             hub.setUser(user);
@@ -127,8 +140,6 @@ public class UserServiceImpl implements UserService {
     }
 
 
-
-
     public List<BankCardEntity> getLinkedCards(String token) {
         // Extract civilId from the token
         String civilId = jwtUtil.extractCivilId(token);
@@ -149,7 +160,6 @@ public class UserServiceImpl implements UserService {
                 .filter(BankCardEntity::isSelected) // Filter where selected = true
                 .collect(Collectors.toList());
     }
-
 
 
     public void saveSelectedCards(String token, List<Long> selectedCardIds) {
@@ -202,7 +212,66 @@ public class UserServiceImpl implements UserService {
         return user;
     }
 
+    // Define the upload directory as an absolute path
+    private static final String UPLOAD_DIR = "C:\\CodeProjects\\CODED\\BoubyanCapstone\\Capstone_Backend\\Shares\\src\\main\\java\\com\\example\\Shares\\auth\\utils\\UPLOAD_DIR";
+
+    @Override
+    public String savePicture(UserEntity user, MultipartFile file) {
+        try {
+            // Ensure the uploads directory exists
+            Path uploadPath = Paths.get(UPLOAD_DIR);
+            if (!Files.exists(uploadPath)) {
+                Files.createDirectories(uploadPath); // Creates directory if not exists
+            }
+
+            // Generate file name using user's Civil ID
+            String fileName = user.getCivilId() + ".jpg";
+            Path filePath = uploadPath.resolve(fileName);
+
+            // Save the file to disk
+            Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+
+            // Save file URL to user entity
+            user.setPictureUrl(fileName);
+            userRepository.save(user);
+
+            return fileName;
+        } catch (IOException e) {
+            e.printStackTrace(); // Log the error
+            return null;
+        }
+    }
 
 
+    @Override
+    public ResponseEntity<Resource> getProfilePicture(UserEntity token) {
+        try {
+
+
+            // Construct file path
+            Path filePath = Paths.get(UPLOAD_DIR).resolve(token.getPictureUrl()).toAbsolutePath();
+
+            // Check if file exists
+            if (!Files.exists(filePath)) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+            }
+
+            // Load file as resource
+            Resource resource = new UrlResource(filePath.toUri());
+
+            // Get correct content type
+            String contentType = Files.probeContentType(filePath);
+            if (contentType == null) {
+                contentType = "application/octet-stream"; // Fallback for unknown types
+            }
+
+            return ResponseEntity.ok()
+                    .contentType(MediaType.parseMediaType(contentType))
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + resource.getFilename() + "\"")
+                    .body(resource);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
 
 }

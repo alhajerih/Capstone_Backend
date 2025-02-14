@@ -18,6 +18,7 @@ import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.slf4j.Logger;
 
@@ -56,8 +57,10 @@ public class DatabaseSeeder implements ApplicationRunner {
             UserEntity user = new UserEntity();
             user.setCivilId("293082501504");
             user.setPhoneNumber("+96599528332");
+            user.setUsername("yousif");
+            user.setPictureUrl("293082501504.jpg");
+            user.setPassword(new BCryptPasswordEncoder().encode("password"));
             user.setRole(Roles.User);
-            user.setUsername("postgres");
             userRepository.save(user);
             logger.info("User table seeded.");
         }
