@@ -2,6 +2,28 @@
   "configurations": [
     {
       "type": "java",
+      "name": "EurekaServerApplication",
+      "request": "launch",
+      "mainClass": "com.example.eureka_server.EurekaServerApplication",
+      "projectName": "eureka-server"
+    },
+    {
+      "type": "java",
+      "name": "ApiGatewayApplication",
+      "request": "launch",
+      "mainClass": "com.example.api_gateway.ApiGatewayApplication",
+      "projectName": "api-gateway",
+      "vmArgs": " -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port=59689 -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Dspring.jmx.enabled=true -Djava.rmi.server.hostname=localhost -Dspring.application.admin.enabled=true -Dspring.boot.project.name=api-gateway"
+    },
+    {
+      "type": "java",
+      "name": "NotificationserviceApplication",
+      "request": "launch",
+      "mainClass": "com.example.notificationservice.NotificationserviceApplication",
+      "projectName": "notificationservice"
+    },
+    {
+      "type": "java",
       "name": "Spring Boot-SharesApplication<Shares>",
       "request": "launch",
       "cwd": "${workspaceFolder}",
