@@ -2,11 +2,17 @@ package com.example.Shares.wallet.controller;
 
 import com.example.Shares.auth.entity.UserEntity;
 import com.example.Shares.auth.service.UserService;
+import com.example.Shares.transactions.entity.TransactionsEntity;
+import com.example.Shares.transactions.service.TransactionService;
 import com.example.Shares.wallet.bo.CreateWalletRequest;
 import com.example.Shares.wallet.bo.UpdateWalletRequest;
 import com.example.Shares.wallet.entity.WalletEntity;
 import com.example.Shares.wallet.service.WalletService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,6 +29,8 @@ public class WalletController {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private TransactionService transactionService;
     @PostMapping("/create-wallet")
     public ResponseEntity<String> createNewWallet(@RequestHeader("Authorization") String token, @RequestBody CreateWalletRequest request) {
 
@@ -111,6 +119,32 @@ public class WalletController {
         return ResponseEntity.ok("Wallet active status toggled successfully.");
     }
 
+
+
+    @GetMapping("/wallet-transactions")
+    public ResponseEntity<?> getTransactionsForWallet(
+            @RequestHeader("Authorization") String token,
+            @RequestParam Long walletId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        String jwt = token.substring(7);
+        UserEntity user = userService.getUserFromToken(jwt);
+
+        // Check if the wallet exists for this user
+        boolean walletExists = user.getHub().getWallets()
+                .stream()
+                .anyMatch(w -> w.getId().equals(walletId));
+
+        if (!walletExists) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Wallet not found");
+        }
+
+        Pageable pageable = PageRequest.of(page, size);
+        Page<TransactionsEntity> transactions = transactionService.getTransactionsByWalletId(walletId, pageable);
+
+        return ResponseEntity.ok(transactions);
+    }
 
 }
 

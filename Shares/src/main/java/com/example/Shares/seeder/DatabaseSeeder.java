@@ -89,6 +89,7 @@ public class DatabaseSeeder implements ApplicationRunner {
         }
         HubEntity hub = hubOptional.get();
 
+<<<<<<< HEAD
         // Primary Salary Account
         BankCardEntity salaryCard = new BankCardEntity();
         salaryCard.setCardBalance(850.0);  // Salary in KWD (after deductions and transfers)
@@ -127,6 +128,30 @@ public class DatabaseSeeder implements ApplicationRunner {
         youthCard.setUser(user);
         youthCard.setHub(hub);
         bankCardRepository.save(youthCard);
+=======
+        BankCardEntity card = new BankCardEntity();
+        card.setCardBalance(15000.0);
+        card.setCardNumber("1234567890123456");
+        card.setBankName("Boubyan VISA");
+        card.setCardType("checking");
+        card.setCvv("222");
+        card.setAccountNumber("4433547405");
+        card.setExpiryDate("12/30");
+        card.setSelected(true);
+        card.setHub(hub);
+        card.setUser(user);
+        bankCardRepository.save(card);
+        BankCardEntity card1 = new BankCardEntity();
+        card1.setCardBalance(50000.0);
+        card1.setCardNumber("1234567890123457");
+        card1.setBankName("Nomo VISA");
+        card1.setCardType("savings");
+        card1.setCvv("222");
+        card1.setAccountNumber("4433547401");
+        card1.setExpiryDate("12/30");
+        card1.setUser(user);
+        bankCardRepository.save(card1);
+>>>>>>> refs/remotes/origin/main
 
         logger.info("Bank Cards table seeded successfully.");
     }
@@ -268,6 +293,7 @@ public class DatabaseSeeder implements ApplicationRunner {
         fuelTransaction1.setLongitude(47.9337);
         transactionsRepository.save(fuelTransaction1);
 
+<<<<<<< HEAD
         TransactionsEntity fuelTransaction2 = new TransactionsEntity();
         fuelTransaction2.setAmount(8.750);  // Partial tank
         fuelTransaction2.setTransactionName("KNPC - Fuel Station Jahra Road");
@@ -285,6 +311,25 @@ public class DatabaseSeeder implements ApplicationRunner {
         fuelTransaction3.setLatitude(29.3578);
         fuelTransaction3.setLongitude(48.0091);
         transactionsRepository.save(fuelTransaction3);
+=======
+//        TransactionsEntity transaction = new TransactionsEntity();
+//        transaction.setAmount(100.0);
+//        transaction.setTransactionName("Netflix subscription");
+//        transaction.setWalletUsed(wallet);
+//        transaction.setHub(wallet.getHub());
+//
+//        transactionsRepository.save(transaction);
+        for (int i = 1; i <= 30; i++) {
+            TransactionsEntity transaction = new TransactionsEntity();
+            transaction.setAmount(50.0 + (i * 5));
+            transaction.setTransactionName("Transaction #" + i);
+
+            transaction.setWalletUsed(wallet);
+            transaction.setHub(wallet.getHub());
+
+            transactionsRepository.save(transaction);
+        }
+>>>>>>> refs/remotes/origin/main
 
         // Dining Transactions
         WalletEntity diningWallet = wallets.get(1);

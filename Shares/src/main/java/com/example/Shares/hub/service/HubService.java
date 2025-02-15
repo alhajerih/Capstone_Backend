@@ -63,6 +63,8 @@ public class HubService {
         this.notificationService = notificationService;
     }
 
+
+
     @Transactional
     public boolean processPaymentWithChecking(UserEntity user, PaymentRequest request) {
         HubEntity hub = user.getHub();
@@ -224,10 +226,7 @@ public class HubService {
     }
 
 
-            public List<TransactionsEntity> getTransactionsForUser(UserEntity user) {
-        HubEntity userHub = user.getHub();
-        return transactionsRepository.findByHub(userHub);
-    }
+
 
     @Transactional
     @Cacheable(value = "hubCard", key = "#request")
