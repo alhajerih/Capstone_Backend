@@ -6,6 +6,7 @@ import com.example.Shares.auth.entity.UserEntity;
 import com.example.Shares.auth.service.UserService;
 import com.example.Shares.hub.bo.CardThemeRequest;
 import com.example.Shares.hub.bo.HubCardPaymentRequest;
+import com.example.Shares.hub.bo.PaymentDoneResponse;
 import com.example.Shares.hub.bo.PaymentRequest;
 import com.example.Shares.hub.entity.HubEntity;
 import com.example.Shares.hub.repository.HubRepository;
@@ -104,15 +105,15 @@ public class HubController {
     }
 
     @PostMapping("/pay-with-hubcard-unified")
-    public ResponseEntity<String> unifiedPayWithHubCard(@RequestBody HubCardPaymentRequest request) {
-        boolean transactionSuccessful = false;
-        String status;
+    public ResponseEntity<PaymentDoneResponse> unifiedPayWithHubCard(@RequestBody HubCardPaymentRequest request) {
+        PaymentDoneResponse responseBody = new PaymentDoneResponse();
 
         // 1) Find the hub by hubCardNumber
         Optional<HubEntity> hubOpt = hubRepository.findByHubCardNumber(request.getHubCardNumber());
         if (!hubOpt.isPresent()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body("No hub found with that card number.");
+            responseBody.setMessage("No hub found with that card number.");
+            responseBody.setStatus("ERROR");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(responseBody);
         }
 
         HubEntity hub = hubOpt.get();
@@ -120,8 +121,9 @@ public class HubController {
         // 2) Get the user from the hub
         UserEntity user = hub.getUser();
         if (user == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body("No user associated with this hub.");
+            responseBody.setMessage("No user associated with this hub.");
+            responseBody.setStatus("ERROR");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(responseBody);
         }
 
         // 3) Check the user's smartPay setting
@@ -135,12 +137,15 @@ public class HubController {
             paymentSuccess = hubService.processPaymentByHubCard(request);
         }
 
-        // 6) Return the appropriate response
+        // 5) Build the appropriate JSON response
         if (paymentSuccess) {
-            return ResponseEntity.ok("Payment successful and recorded.");
+            responseBody.setMessage("Payment successful and recorded.");
+            responseBody.setStatus("SUCCESS");
+            return ResponseEntity.ok(responseBody);
         } else {
-            return ResponseEntity.badRequest()
-                    .body("Payment failed. Please check details and try again.");
+            responseBody.setMessage("Payment failed. Please check details and try again.");
+            responseBody.setStatus("FAILURE");
+            return ResponseEntity.badRequest().body(responseBody);
         }
     }
 
