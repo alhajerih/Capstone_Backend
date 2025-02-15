@@ -89,247 +89,250 @@ public class DatabaseSeeder implements ApplicationRunner {
         }
         HubEntity hub = hubOptional.get();
 
-<<<<<<< HEAD
-        // Primary Salary Account
-        BankCardEntity salaryCard = new BankCardEntity();
-        salaryCard.setCardBalance(850.0);  // Salary in KWD (after deductions and transfers)
-        salaryCard.setCardNumber("4565841523654789");
-        salaryCard.setBankName("Boubyan Bank");
-        salaryCard.setCardType("Salary Account");
-        salaryCard.setCvv("123");
-        salaryCard.setAccountNumber("0044556677");
-        salaryCard.setExpiryDate("05/27");
-        salaryCard.setHub(hub);
-        salaryCard.setUser(user);
-        bankCardRepository.save(salaryCard);
+// Bank Cards Seeding
+if (bankCardRepository.count() > 0) {
+    logger.info("Bank Cards table already seeded. Skipping...");
+} else {
+    // Primary Salary Account (from HEAD)
+    BankCardEntity salaryCard = new BankCardEntity();
+    salaryCard.setCardBalance(850.0);  // Salary in KWD (after deductions and transfers)
+    salaryCard.setCardNumber("4565841523654789");
+    salaryCard.setBankName("Boubyan Bank");
+    salaryCard.setCardType("Salary Account");
+    salaryCard.setCvv("123");
+    salaryCard.setAccountNumber("0044556677");
+    salaryCard.setExpiryDate("05/27");
+    salaryCard.setHub(hub);
+    salaryCard.setUser(user);
+    bankCardRepository.save(salaryCard);
 
-        // Nomo Account
-        BankCardEntity nomoCard = new BankCardEntity();
-        nomoCard.setCardBalance(2500.0);  // Savings in KWD
-        nomoCard.setCardNumber("4565841523654790");
-        nomoCard.setBankName("Nomo Bank");
-        nomoCard.setCardType("Digital Account");
-        nomoCard.setCvv("456");
-        nomoCard.setAccountNumber("0044556678");
-        nomoCard.setExpiryDate("08/27");
-        nomoCard.setUser(user);
-        nomoCard.setHub(hub);
-        bankCardRepository.save(nomoCard);
+    // Nomo Account (from HEAD)
+    BankCardEntity nomoCard = new BankCardEntity();
+    nomoCard.setCardBalance(2500.0);  // Savings in KWD
+    nomoCard.setCardNumber("4565841523654790");
+    nomoCard.setBankName("Nomo Bank");
+    nomoCard.setCardType("Digital Account");
+    nomoCard.setCvv("456");
+    nomoCard.setAccountNumber("0044556678");
+    nomoCard.setExpiryDate("08/27");
+    nomoCard.setUser(user);
+    nomoCard.setHub(hub);
+    bankCardRepository.save(nomoCard);
 
-        // Boubyan Youth Account
-        BankCardEntity youthCard = new BankCardEntity();
-        youthCard.setCardBalance(350.0);  // Spending money in KWD
-        youthCard.setCardNumber("4565841523654791");
-        youthCard.setBankName("Boubyan Bank");
-        youthCard.setCardType("Youth Account");
-        youthCard.setCvv("789");
-        youthCard.setAccountNumber("0044556679");
-        youthCard.setExpiryDate("11/26");
-        youthCard.setUser(user);
-        youthCard.setHub(hub);
-        bankCardRepository.save(youthCard);
-=======
-        BankCardEntity card = new BankCardEntity();
-        card.setCardBalance(15000.0);
-        card.setCardNumber("1234567890123456");
-        card.setBankName("Boubyan VISA");
-        card.setCardType("checking");
-        card.setCvv("222");
-        card.setAccountNumber("4433547405");
-        card.setExpiryDate("12/30");
-        card.setSelected(true);
-        card.setHub(hub);
-        card.setUser(user);
-        bankCardRepository.save(card);
-        BankCardEntity card1 = new BankCardEntity();
-        card1.setCardBalance(50000.0);
-        card1.setCardNumber("1234567890123457");
-        card1.setBankName("Nomo VISA");
-        card1.setCardType("savings");
-        card1.setCvv("222");
-        card1.setAccountNumber("4433547401");
-        card1.setExpiryDate("12/30");
-        card1.setUser(user);
-        bankCardRepository.save(card1);
->>>>>>> refs/remotes/origin/main
+    // Boubyan Youth Account (from HEAD)
+    BankCardEntity youthCard = new BankCardEntity();
+    youthCard.setCardBalance(350.0);  // Spending money in KWD
+    youthCard.setCardNumber("4565841523654791");
+    youthCard.setBankName("Boubyan Bank");
+    youthCard.setCardType("Youth Account");
+    youthCard.setCvv("789");
+    youthCard.setAccountNumber("0044556679");
+    youthCard.setExpiryDate("11/26");
+    youthCard.setUser(user);
+    youthCard.setHub(hub);
+    bankCardRepository.save(youthCard);
 
-        logger.info("Bank Cards table seeded successfully.");
+    // Additional Bank Card (from remote branch)
+    BankCardEntity card = new BankCardEntity();
+    card.setCardBalance(15000.0);
+    card.setCardNumber("1234567890123456");
+    card.setBankName("Boubyan VISA");
+    card.setCardType("checking");
+    card.setCvv("222");
+    card.setAccountNumber("4433547405");
+    card.setExpiryDate("12/30");
+    card.setSelected(true);
+    card.setHub(hub);
+    card.setUser(user);
+    bankCardRepository.save(card);
+
+    BankCardEntity card1 = new BankCardEntity();
+    card1.setCardBalance(50000.0);
+    card1.setCardNumber("1234567890123457");
+    card1.setBankName("Nomo VISA");
+    card1.setCardType("savings");
+    card1.setCvv("222");
+    card1.setAccountNumber("4433547401");
+    card1.setExpiryDate("12/30");
+    card1.setUser(user);
+    card1.setHub(hub);
+    bankCardRepository.save(card1);
+
+    logger.info("Bank Cards table seeded successfully.");
+}
+
+// Hub Seeding (unchanged)
+private void seedHubTable(){
+    logger.info("Checking hub seeding...");
+
+    if (hubRepository.count() > 0) {
+        logger.info("Hub table already seeded. Skipping...");
+        return;
     }
 
-    private void seedHubTable(){
-        logger.info("Checking hub seeding...");
-
-        if (hubRepository.count() > 0) {
-            logger.info("Hub table already seeded. Skipping...");
-            return;
-        }
-
-        Optional<UserEntity> userOptional = userRepository.findFirstByOrderByIdAsc();
-        if (!userOptional.isPresent()) {
-            logger.warn("No users found. Skipping hub seeding.");
-            return;
-        }
-
-        UserEntity user = userOptional.get();
-        logger.info("User found for hub: " + user.getCivilId());
-
-        HubEntity hub = new HubEntity();
-        hub.setHubCardNumber("6515841523654789");  // Different prefix for hub card
-        hub.setUser(user);
-        hubRepository.save(hub);
-
-        logger.info("Hub table seeded successfully.");
+    Optional<UserEntity> userOptional = userRepository.findFirstByOrderByIdAsc();
+    if (!userOptional.isPresent()) {
+        logger.warn("No users found. Skipping hub seeding.");
+        return;
     }
 
-    private void seedWalletTable() {
-        logger.info("Checking wallet seeding...");
+    UserEntity user = userOptional.get();
+    logger.info("User found for hub: " + user.getCivilId());
 
-        if (walletRepository.count() > 0) {
-            logger.info("Wallet table already seeded. Skipping...");
-            return;
-        }
+    HubEntity hub = new HubEntity();
+    hub.setHubCardNumber("6515841523654789");  // Different prefix for hub card
+    hub.setUser(user);
+    hubRepository.save(hub);
 
-        Optional<UserEntity> userOptional = userRepository.findFirstByOrderByIdAsc();
-        if (!userOptional.isPresent()) {
-            logger.warn("No users found. Skipping wallet seeding.");
-            return;
-        }
+    logger.info("Hub table seeded successfully.");
+}
 
-        UserEntity user = userOptional.get();
-        logger.info("User found for wallet: " + user.getCivilId());
-        List<BankCardEntity> bankCards = bankCardRepository.findAll();
-        if (bankCards.isEmpty()) {
-            logger.warn("No bank cards found. Skipping wallet seeding.");
-            return;
-        }
-        BankCardEntity bankCard = bankCards.get(0);
+// Wallet Seeding (unchanged)
+private void seedWalletTable() {
+    logger.info("Checking wallet seeding...");
 
-        // Fuel Wallet
-        WalletEntity fuelWallet = new WalletEntity();
-        fuelWallet.setLinkedCards(List.of(bankCard));
-        fuelWallet.setAllocation(50.0);  // Monthly allocation in KWD
-        fuelWallet.setBalance(35.0);     // Current balance in KWD
-        fuelWallet.setCategory("Fuel");
-        fuelWallet.setName("Car Fuel");
-        fuelWallet.setSelected(true);
-        fuelWallet.setHub(user.getHub());
-        fuelWallet.setPatternId(1L);
-        fuelWallet.setColorId(1L);
-        walletRepository.save(fuelWallet);
-
-        // Dining Wallet
-        WalletEntity diningWallet = new WalletEntity();
-        diningWallet.setLinkedCards(List.of(bankCard));
-        diningWallet.setAllocation(150.0);
-        diningWallet.setBalance(85.0);
-        diningWallet.setCategory("Dining");
-        diningWallet.setName("Restaurants & Cafes");
-        diningWallet.setSelected(false);
-        diningWallet.setHub(user.getHub());
-        diningWallet.setPatternId(2L);
-        diningWallet.setColorId(2L);
-        walletRepository.save(diningWallet);
-
-        // Entertainment Wallet
-        WalletEntity entertainmentWallet = new WalletEntity();
-        entertainmentWallet.setLinkedCards(List.of(bankCard));
-        entertainmentWallet.setAllocation(100.0);
-        entertainmentWallet.setBalance(45.0);
-        entertainmentWallet.setCategory("Entertainment");
-        entertainmentWallet.setName("Movies & Activities");
-        entertainmentWallet.setSelected(false);
-        entertainmentWallet.setHub(user.getHub());
-        entertainmentWallet.setPatternId(3L);
-        entertainmentWallet.setColorId(3L);
-        walletRepository.save(entertainmentWallet);
-
-        // Shopping Wallet
-        WalletEntity shoppingWallet = new WalletEntity();
-        shoppingWallet.setLinkedCards(List.of(bankCard));
-        shoppingWallet.setAllocation(200.0);
-        shoppingWallet.setBalance(120.0);
-        shoppingWallet.setCategory("Shopping");
-        shoppingWallet.setName("Avenues Mall");
-        shoppingWallet.setSelected(false);
-        shoppingWallet.setHub(user.getHub());
-        shoppingWallet.setPatternId(4L);
-        shoppingWallet.setColorId(4L);
-        walletRepository.save(shoppingWallet);
-
-        logger.info("Wallet table seeded successfully.");
+    if (walletRepository.count() > 0) {
+        logger.info("Wallet table already seeded. Skipping...");
+        return;
     }
 
-    private void seedTransactionsTable() {
-        logger.info("Checking transactions seeding...");
+    Optional<UserEntity> userOptional = userRepository.findFirstByOrderByIdAsc();
+    if (!userOptional.isPresent()) {
+        logger.warn("No users found. Skipping wallet seeding.");
+        return;
+    }
 
-        if (transactionsRepository.count() > 0) {
-            logger.info("Transactions table already seeded. Skipping...");
-            return;
-        }
+    UserEntity user = userOptional.get();
+    logger.info("User found for wallet: " + user.getCivilId());
+    List<BankCardEntity> bankCards = bankCardRepository.findAll();
+    if (bankCards.isEmpty()) {
+        logger.warn("No bank cards found. Skipping wallet seeding.");
+        return;
+    }
+    BankCardEntity bankCard = bankCards.get(0);
 
-        Optional<UserEntity> userOptional = userRepository.findFirstByOrderByIdAsc();
-        if (!userOptional.isPresent()) {
-            logger.warn("No users found. Skipping transactions seeding.");
-            return;
-        }
+    // Fuel Wallet
+    WalletEntity fuelWallet = new WalletEntity();
+    fuelWallet.setLinkedCards(List.of(bankCard));
+    fuelWallet.setAllocation(50.0);  // Monthly allocation in KWD
+    fuelWallet.setBalance(35.0);     // Current balance in KWD
+    fuelWallet.setCategory("Fuel");
+    fuelWallet.setName("Car Fuel");
+    fuelWallet.setSelected(true);
+    fuelWallet.setHub(user.getHub());
+    fuelWallet.setPatternId(1L);
+    fuelWallet.setColorId(1L);
+    walletRepository.save(fuelWallet);
 
-        UserEntity user = userOptional.get();
-        List<WalletEntity> wallets = walletRepository.findAll();
-        if (wallets.isEmpty()) {
-            logger.warn("No wallets found. Skipping transactions seeding.");
-            return;
-        }
+    // Dining Wallet
+    WalletEntity diningWallet = new WalletEntity();
+    diningWallet.setLinkedCards(List.of(bankCard));
+    diningWallet.setAllocation(150.0);
+    diningWallet.setBalance(85.0);
+    diningWallet.setCategory("Dining");
+    diningWallet.setName("Restaurants & Cafes");
+    diningWallet.setSelected(false);
+    diningWallet.setHub(user.getHub());
+    diningWallet.setPatternId(2L);
+    diningWallet.setColorId(2L);
+    walletRepository.save(diningWallet);
 
-        // Fuel Transactions
-        WalletEntity fuelWallet = wallets.get(0);
-        
-        // Regular fuel transactions at different stations
-        TransactionsEntity fuelTransaction1 = new TransactionsEntity();
-        fuelTransaction1.setAmount(12.500);  // Full tank for medium car
-        fuelTransaction1.setTransactionName("KNPC - Fuel Station Shuwaikh");
-        fuelTransaction1.setWalletUsed(fuelWallet);
-        fuelTransaction1.setHub(fuelWallet.getHub());
-        fuelTransaction1.setLatitude(29.3399);
-        fuelTransaction1.setLongitude(47.9337);
-        transactionsRepository.save(fuelTransaction1);
+    // Entertainment Wallet
+    WalletEntity entertainmentWallet = new WalletEntity();
+    entertainmentWallet.setLinkedCards(List.of(bankCard));
+    entertainmentWallet.setAllocation(100.0);
+    entertainmentWallet.setBalance(45.0);
+    entertainmentWallet.setCategory("Entertainment");
+    entertainmentWallet.setName("Movies & Activities");
+    entertainmentWallet.setSelected(false);
+    entertainmentWallet.setHub(user.getHub());
+    entertainmentWallet.setPatternId(3L);
+    entertainmentWallet.setColorId(3L);
+    walletRepository.save(entertainmentWallet);
 
-<<<<<<< HEAD
-        TransactionsEntity fuelTransaction2 = new TransactionsEntity();
-        fuelTransaction2.setAmount(8.750);  // Partial tank
-        fuelTransaction2.setTransactionName("KNPC - Fuel Station Jahra Road");
-        fuelTransaction2.setWalletUsed(fuelWallet);
-        fuelTransaction2.setHub(fuelWallet.getHub());
-        fuelTransaction2.setLatitude(29.3375);
-        fuelTransaction2.setLongitude(47.6581);
-        transactionsRepository.save(fuelTransaction2);
+    // Shopping Wallet
+    WalletEntity shoppingWallet = new WalletEntity();
+    shoppingWallet.setLinkedCards(List.of(bankCard));
+    shoppingWallet.setAllocation(200.0);
+    shoppingWallet.setBalance(120.0);
+    shoppingWallet.setCategory("Shopping");
+    shoppingWallet.setName("Avenues Mall");
+    shoppingWallet.setSelected(false);
+    shoppingWallet.setHub(user.getHub());
+    shoppingWallet.setPatternId(4L);
+    shoppingWallet.setColorId(4L);
+    walletRepository.save(shoppingWallet);
 
-        TransactionsEntity fuelTransaction3 = new TransactionsEntity();
-        fuelTransaction3.setAmount(15.250);  // Full tank for SUV
-        fuelTransaction3.setTransactionName("KNPC - Fuel Station Gulf Road");
-        fuelTransaction3.setWalletUsed(fuelWallet);
-        fuelTransaction3.setHub(fuelWallet.getHub());
-        fuelTransaction3.setLatitude(29.3578);
-        fuelTransaction3.setLongitude(48.0091);
-        transactionsRepository.save(fuelTransaction3);
-=======
-//        TransactionsEntity transaction = new TransactionsEntity();
-//        transaction.setAmount(100.0);
-//        transaction.setTransactionName("Netflix subscription");
-//        transaction.setWalletUsed(wallet);
-//        transaction.setHub(wallet.getHub());
-//
-//        transactionsRepository.save(transaction);
-        for (int i = 1; i <= 30; i++) {
-            TransactionsEntity transaction = new TransactionsEntity();
-            transaction.setAmount(50.0 + (i * 5));
-            transaction.setTransactionName("Transaction #" + i);
+    logger.info("Wallet table seeded successfully.");
+}
 
-            transaction.setWalletUsed(wallet);
-            transaction.setHub(wallet.getHub());
+// Transactions Seeding
+private void seedTransactionsTable() {
+    logger.info("Checking transactions seeding...");
 
-            transactionsRepository.save(transaction);
-        }
->>>>>>> refs/remotes/origin/main
+    if (transactionsRepository.count() > 0) {
+        logger.info("Transactions table already seeded. Skipping...");
+        return;
+    }
+
+    Optional<UserEntity> userOptional = userRepository.findFirstByOrderByIdAsc();
+    if (!userOptional.isPresent()) {
+        logger.warn("No users found. Skipping transactions seeding.");
+        return;
+    }
+
+    UserEntity user = userOptional.get();
+    logger.info("User found for transactions: " + user.getCivilId());
+
+    List<WalletEntity> wallets = walletRepository.findAll();
+    if (wallets.isEmpty()) {
+        logger.warn("No wallets found. Skipping transactions seeding.");
+        return;
+    }
+    // Use the first wallet for seeding transactions
+    WalletEntity wallet = wallets.get(0);
+    logger.info("Wallet found for transactions: " + wallet.getName());
+
+    // Create generic transactions (from remote branch)
+    for (int i = 1; i <= 30; i++) {
+        TransactionsEntity transaction = new TransactionsEntity();
+        transaction.setAmount(50.0 + (i * 5));
+        transaction.setTransactionName("Transaction #" + i);
+        transaction.setWalletUsed(wallet);
+        transaction.setHub(wallet.getHub());
+        transactionsRepository.save(transaction);
+    }
+
+    // Fuel Transactions (from HEAD)
+    TransactionsEntity fuelTransaction1 = new TransactionsEntity();
+    fuelTransaction1.setAmount(12.500);  // Full tank for medium car
+    fuelTransaction1.setTransactionName("KNPC - Fuel Station Shuwaikh");
+    fuelTransaction1.setWalletUsed(wallet);
+    fuelTransaction1.setHub(wallet.getHub());
+    fuelTransaction1.setLatitude(29.3399);
+    fuelTransaction1.setLongitude(47.9337);
+    transactionsRepository.save(fuelTransaction1);
+
+    TransactionsEntity fuelTransaction2 = new TransactionsEntity();
+    fuelTransaction2.setAmount(8.750);  // Partial tank
+    fuelTransaction2.setTransactionName("KNPC - Fuel Station Jahra Road");
+    fuelTransaction2.setWalletUsed(wallet);
+    fuelTransaction2.setHub(wallet.getHub());
+    fuelTransaction2.setLatitude(29.3375);
+    fuelTransaction2.setLongitude(47.6581);
+    transactionsRepository.save(fuelTransaction2);
+
+    TransactionsEntity fuelTransaction3 = new TransactionsEntity();
+    fuelTransaction3.setAmount(15.250);  // Full tank for SUV
+    fuelTransaction3.setTransactionName("KNPC - Fuel Station Gulf Road");
+    fuelTransaction3.setWalletUsed(wallet);
+    fuelTransaction3.setHub(wallet.getHub());
+    fuelTransaction3.setLatitude(29.3578);
+    fuelTransaction3.setLongitude(48.0091);
+    transactionsRepository.save(fuelTransaction3);
+
+    logger.info("Transactions table seeded successfully.");
+}
 
         // Dining Transactions
         WalletEntity diningWallet = wallets.get(1);
