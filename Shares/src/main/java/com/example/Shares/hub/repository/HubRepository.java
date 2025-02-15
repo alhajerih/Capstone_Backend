@@ -10,11 +10,8 @@ import java.util.Optional;
 
 
 public interface HubRepository extends JpaRepository<HubEntity, Long> {
-    //    List<BankCardEntity> findByUserId(Long userId);
     Optional<HubEntity> findByHubCardNumber(String hubCardNumber);
     Optional<HubEntity> findFirstByOrderByIdAsc();
-    // Find HubEntity by UserEntity
-    HubEntity findByUser(UserEntity user);
 
 }
 

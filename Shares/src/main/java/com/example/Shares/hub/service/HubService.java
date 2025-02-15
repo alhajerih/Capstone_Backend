@@ -64,14 +64,6 @@ public class HubService {
     }
 
 
-    public List<TransactionsEntity> getTransactionsForUser(UserEntity user) {
-        HubEntity userHub = user.getHub(); // Get the hub associated with the user
-        if (userHub == null) {
-            return Collections.emptyList(); // Return an empty list if the user has no hub
-        }
-        return transactionsRepository.findByHub(userHub); // Fetch transactions linked to the hub
-    }
-
 
     @Transactional
     public boolean processPaymentWithChecking(UserEntity user, PaymentRequest request) {

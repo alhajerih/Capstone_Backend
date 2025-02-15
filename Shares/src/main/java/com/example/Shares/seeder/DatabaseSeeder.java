@@ -199,13 +199,23 @@ public class DatabaseSeeder implements ApplicationRunner {
         WalletEntity wallet = walletRepository.findFirstByOrderByIdAsc().get();
         logger.info("Wallet found for transactions: " + wallet.getName());
 
-        TransactionsEntity transaction = new TransactionsEntity();
-        transaction.setAmount(100.0);
-        transaction.setTransactionName("Netflix subscription");
-        transaction.setWalletUsed(wallet);
-        transaction.setHub(wallet.getHub());
+//        TransactionsEntity transaction = new TransactionsEntity();
+//        transaction.setAmount(100.0);
+//        transaction.setTransactionName("Netflix subscription");
+//        transaction.setWalletUsed(wallet);
+//        transaction.setHub(wallet.getHub());
+//
+//        transactionsRepository.save(transaction);
+        for (int i = 1; i <= 30; i++) {
+            TransactionsEntity transaction = new TransactionsEntity();
+            transaction.setAmount(50.0 + (i * 5));
+            transaction.setTransactionName("Transaction #" + i);
 
-        transactionsRepository.save(transaction);
+            transaction.setWalletUsed(wallet);
+            transaction.setHub(wallet.getHub());
+
+            transactionsRepository.save(transaction);
+        }
 
         logger.info("Transactions table seeded successfully.");
     }

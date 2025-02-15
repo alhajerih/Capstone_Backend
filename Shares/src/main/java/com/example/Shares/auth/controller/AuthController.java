@@ -8,7 +8,6 @@ import com.example.Shares.auth.entity.BankCardEntity;
 import com.example.Shares.auth.entity.UserEntity;
 import com.example.Shares.auth.repository.UserRepository;
 import com.example.Shares.auth.service.UserService;
-import com.example.Shares.hub.repository.HubRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
