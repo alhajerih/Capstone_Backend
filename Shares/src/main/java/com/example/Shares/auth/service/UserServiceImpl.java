@@ -102,14 +102,13 @@ public class UserServiceImpl implements UserService {
         UserEntity user = userRepository.findByCivilId(civilId)
                 .orElseThrow(() -> new IllegalArgumentException("Civil ID not found"));
 
-
         user.setUsername(username);
         user.setPassword(passwordEncoder.encode(password));
+        // Note: firstName and lastName should already be set when user was created during OTP phase
 
         //Only create a hub for new users
         if (user.getHub() == null) {
             HubEntity hub = new HubEntity();
-
             hub.setUser(user);
             user.setHub(hub);
         }
