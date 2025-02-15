@@ -272,22 +272,22 @@ public class DatabaseSeeder implements ApplicationRunner {
     }
 
     private void seedBillsTransactions(WalletEntity wallet) {
+        createTransaction(wallet, 20.000, "Netflix", 29.3399, 47.9337);
         createTransaction(wallet, 65.000, "Ministry of Electricity", 29.3759, 47.9774);
         createTransaction(wallet, 35.000, "Zain Kuwait", 29.3015, 47.9282);
         createTransaction(wallet, 45.000, "Ooredoo Internet", 29.3399, 47.9337);
-        createTransaction(wallet, 20.000, "Netflix", 29.3399, 47.9337);
     }
 
     private void seedFoodTransactions(WalletEntity wallet) {
-        createTransaction(wallet, 12.000, "Starbucks - 360 Mall", 29.3015, 47.9282);
         createTransaction(wallet, 8.500, "Pick - The Avenues", 29.3759, 47.9774);
-        createTransaction(wallet, 22.000, "Shake Shack - Avenues", 29.3015, 47.9282);
         createTransaction(wallet, 15.500, "Caribou - Arraya", 29.3759, 47.9774);
-        createTransaction(wallet, 55.000, "Solo Pizza - Marina", 29.3015, 47.9282);
+        createTransaction(wallet, 18.750, "Table Otto - JACC", 29.3780, 47.9903);
+        createTransaction(wallet, 25.000, "Dar Hamad - Gulf Road", 29.3420, 48.2203);
+        createTransaction(wallet, 12.750, "Shake Shack - Al Kout", 29.0965, 48.1301);
     }
 
     private void seedTravelTransactions(WalletEntity wallet) {
-        createTransaction(wallet, 85.000, "Emirates Airlines", 29.3759, 47.9774);
+        createTransaction(wallet, 85.000, "Kuwait Airways", 29.2268, 47.9689);
         createTransaction(wallet, 120.000, "Booking.com", 29.3759, 47.9774);
         createTransaction(wallet, 35.000, "Dubai Visa Center", 29.3759, 47.9774);
         createTransaction(wallet, 25.000, "AXA Insurance", 29.3759, 47.9774);
@@ -303,7 +303,7 @@ public class DatabaseSeeder implements ApplicationRunner {
     }
 
     private void seedEntertainmentTransactions(WalletEntity wallet) {
-        createTransaction(wallet, 45.000, "Sky Lounge - Salmiya", 29.3015, 47.9282);
+        createTransaction(wallet, 75.000, "VOX Cinema - Avenues", 29.2694, 47.9783);
         createTransaction(wallet, 35.000, "Cinescape - The Gate", 29.3483, 47.9371);
         createTransaction(wallet, 25.000, "Nintendo Store", 29.3608, 47.9169);
         createTransaction(wallet, 35.000, "Grand Cafe - Kuwait", 29.3015, 47.9282);
