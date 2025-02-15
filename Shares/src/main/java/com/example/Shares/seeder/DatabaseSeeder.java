@@ -191,7 +191,7 @@ public class DatabaseSeeder implements ApplicationRunner {
         foodWallet.setBalance(80.0);       // Mid-month remaining
         foodWallet.setCategory("Food");
         foodWallet.setName("Food & Daily");
-        foodWallet.setSelected(true);
+        foodWallet.setSelected(false);
         foodWallet.setHub(user.getHub());
         foodWallet.setPatternId(2L);
         foodWallet.setColorId(2L);
@@ -204,7 +204,7 @@ public class DatabaseSeeder implements ApplicationRunner {
         travelWallet.setBalance(180.0);     // Saved for next trip
         travelWallet.setCategory("Travel");
         travelWallet.setName("Travel & Vacation");
-        travelWallet.setSelected(true);
+        travelWallet.setSelected(false);
         travelWallet.setHub(user.getHub());
         travelWallet.setPatternId(3L);
         travelWallet.setColorId(3L);
@@ -217,7 +217,7 @@ public class DatabaseSeeder implements ApplicationRunner {
         gadgetsWallet.setBalance(75.0);      // Remaining after purchases
         gadgetsWallet.setCategory("Gadgets");
         gadgetsWallet.setName("Gadgets & Gaming");
-        gadgetsWallet.setSelected(true);
+        gadgetsWallet.setSelected(false);
         gadgetsWallet.setHub(user.getHub());
         gadgetsWallet.setPatternId(4L);
         gadgetsWallet.setColorId(4L);
@@ -230,7 +230,7 @@ public class DatabaseSeeder implements ApplicationRunner {
         entertainmentWallet.setBalance(60.0);      // Left for month
         entertainmentWallet.setCategory("Entertainment");
         entertainmentWallet.setName("Entertainment");
-        entertainmentWallet.setSelected(true);
+        entertainmentWallet.setSelected(false);
         entertainmentWallet.setHub(user.getHub());
         entertainmentWallet.setPatternId(5L);
         entertainmentWallet.setColorId(5L);
