@@ -32,6 +32,7 @@ public class HubEntity implements Serializable {
     private String hubCardNumber;
     private String expDate;
     private String cvv;
+    private Integer cardTheme = 1; // Default theme is 1
 
     @OneToOne
     @JoinColumn(name = "user_id", nullable = false)
@@ -170,6 +171,16 @@ public class HubEntity implements Serializable {
         this.cvv = cvv;
     }
 
+    public Integer getCardTheme() {
+        return cardTheme;
+    }
+
+    public void setCardTheme(Integer cardTheme) {
+        if (cardTheme >= 1 && cardTheme <= 6) {
+            this.cardTheme = cardTheme;
+        }
+    }
+
     public UserEntity getUser() {
         return user;
     }
@@ -200,5 +211,22 @@ public class HubEntity implements Serializable {
 
     public void setTransactions(List<TransactionsEntity> transactions) {
         this.transactions = transactions;
+    }
+
+    @Override
+    public String toString() {
+        return "HubEntity{" +
+                "id=" + id +
+                ", isActive=" + isActive +
+                ", savingsBalance=" + savingsBalance +
+                ", checkingsBalance=" + checkingsBalance +
+                ", hubCardNumber='" + hubCardNumber + '\'' +
+                ", expDate='" + expDate + '\'' +
+                ", cvv='" + cvv + '\'' +
+                ", user=" + user +
+                ", wallets=" + wallets +
+                ", transactions=" + transactions +
+                ", linkedCards=" + linkedCards +
+                '}';
     }
 }

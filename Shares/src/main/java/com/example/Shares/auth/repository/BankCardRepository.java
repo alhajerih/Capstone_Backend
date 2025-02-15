@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Optional;
 
 public interface BankCardRepository extends JpaRepository<BankCardEntity, Long> {
-    List<BankCardEntity> findByUserId(Long userId);
 
     Optional<BankCardEntity> findByCardNumber(String cardNumber);
 

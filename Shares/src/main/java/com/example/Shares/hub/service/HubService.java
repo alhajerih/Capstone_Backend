@@ -63,6 +63,8 @@ public class HubService {
         this.notificationService = notificationService;
     }
 
+
+
     @Transactional
     public boolean processPaymentWithChecking(UserEntity user, PaymentRequest request) {
         HubEntity hub = user.getHub();
@@ -85,6 +87,12 @@ public class HubService {
 
             if (linkedCard == null) {
                 System.out.println("Transaction canceled due to no linked card on selected wallet.");
+                // SEND FAILURE NOTIFICATION
+                Map<String, Object> requestBody = new HashMap<>();
+                requestBody.put("amountNeeded", amountNeeded);
+                requestBody.put("transactionName", request.getTransactionName());
+                requestBody.put("failureReason", "Transaction canceled due to no linked card on selected wallet");
+                notificationService.sendFailureNotification(requestBody);
                 return false;
             }
 
@@ -95,7 +103,7 @@ public class HubService {
                 // Deduct from the linked card
                 linkedCard.setCardBalance(linkedCard.getCardBalance() - amountNeeded);
 
-                // Update hub’s aggregated balances
+                // Update hub's aggregated balances
                 hub.updateBalances();
 
                 // Create and save the transaction record
@@ -105,6 +113,8 @@ public class HubService {
                 transaction.setWalletUsed(selectedWallet);
                 transaction.setHub(hub);
                 transaction.setTransactionTime(LocalDateTime.now());
+                transaction.setLongitude(request.getLongitude());
+                transaction.setLatitude(request.getLatitude());
                 transactionsRepository.save(transaction);
 
                 // Persist changes
@@ -194,7 +204,7 @@ public class HubService {
                 cardBankRepository.save(card);
             }
 
-            // Update the hub’s aggregated balances
+            // Update the hub's aggregated balances
             hub.updateBalances();
 
             // 6) Create a single transaction record for the entire sum
@@ -203,7 +213,9 @@ public class HubService {
             transaction.setAmount(amountNeeded);
             transaction.setHub(hub);
             transaction.setTransactionTime(LocalDateTime.now());
-            // (No single wallet used, so we don’t set `walletUsed` here)
+            transaction.setLongitude(request.getLongitude());
+            transaction.setLatitude(request.getLatitude());
+            // (No single wallet used, so we don't set `walletUsed` here)
 
             // Save transaction and hub
             transactionsRepository.save(transaction);
@@ -214,22 +226,21 @@ public class HubService {
     }
 
 
-            public List<TransactionsEntity> getTransactionsForUser(UserEntity user) {
-        HubEntity userHub = user.getHub();
-        return transactionsRepository.findByHub(userHub);
-    }
+
 
     @Transactional
     @Cacheable(value = "hubCard", key = "#request")
     public boolean processPaymentByHubCard(HubCardPaymentRequest request) {
         // 1) Find the hub by the provided hubCardNumber
         Optional<HubEntity> hubOptional = hubRepository.findByHubCardNumber(request.getHubCardNumber());
-        if (!hubOptional.isPresent()) {
+        if (hubOptional == null || !hubOptional.isPresent()) {
             System.out.println("Transaction failed: No hub found with the provided card number.");
+
             return false;
         }
 
         HubEntity hub = hubOptional.get();
+        System.out.println("Hub found: " + hub.getHubCardNumber());
         Double amountNeeded = request.getAmount();
 
         // Retrieve the QR code transaction from the database
@@ -244,7 +255,7 @@ public class HubService {
                 System.out.println("Transaction already paid");
 
 
-//            return false;
+            return false;
             }
         }
 
@@ -275,7 +286,7 @@ public class HubService {
                 // Deduct from the linked card
                 linkedCard.setCardBalance(linkedCard.getCardBalance() - amountNeeded);
 
-                // Update hub’s aggregated balances
+                // Update hub's aggregated balances
                 hub.updateBalances();
 
                 // Create and save the transaction record
@@ -285,6 +296,8 @@ public class HubService {
                 transaction.setWalletUsed(selectedWallet);
                 transaction.setHub(hub);
                 transaction.setTransactionTime(LocalDateTime.now());
+                transaction.setLongitude(request.getLongitude());
+                transaction.setLatitude(request.getLatitude());
                 transactionsRepository.save(transaction);
 
                 // Persist changes
@@ -394,7 +407,7 @@ public class HubService {
                 cardBankRepository.save(card);
             }
 
-            // Update the hub’s aggregated balances
+            // Update the hub's aggregated balances
             hub.updateBalances();
 
             // 7) Create a single transaction record for the entire sum
@@ -403,6 +416,8 @@ public class HubService {
             transaction.setAmount(amountNeeded);
             transaction.setHub(hub);
             transaction.setTransactionTime(LocalDateTime.now());
+            transaction.setLongitude(request.getLongitude());
+            transaction.setLatitude(request.getLatitude());
             // (No walletUsed here, since no wallet was selected)
 
             transactionsRepository.save(transaction);
@@ -549,7 +564,7 @@ public class HubService {
                 // Deduct from the linked card
                 linkedCard.setCardBalance(linkedCard.getCardBalance() - amountNeeded);
 
-                // Update hub’s aggregated balances
+                // Update hub's aggregated balances
                 hub.updateBalances();
 
                 // Create and save the transaction record
@@ -559,6 +574,8 @@ public class HubService {
                 transaction.setWalletUsed(selectedWallet);
                 transaction.setHub(hub);
                 transaction.setTransactionTime(LocalDateTime.now());
+                transaction.setLongitude(request.getLongitude());
+                transaction.setLatitude(request.getLatitude());
                 transactionsRepository.save(transaction);
 
                 // Persist changes
