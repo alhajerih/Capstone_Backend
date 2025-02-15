@@ -101,7 +101,7 @@ public class HubService {
                 // Deduct from the linked card
                 linkedCard.setCardBalance(linkedCard.getCardBalance() - amountNeeded);
 
-                // Update hub’s aggregated balances
+                // Update hub's aggregated balances
                 hub.updateBalances();
 
                 // Create and save the transaction record
@@ -111,6 +111,8 @@ public class HubService {
                 transaction.setWalletUsed(selectedWallet);
                 transaction.setHub(hub);
                 transaction.setTransactionTime(LocalDateTime.now());
+                transaction.setLongitude(request.getLongitude());
+                transaction.setLatitude(request.getLatitude());
                 transactionsRepository.save(transaction);
 
                 // Persist changes
@@ -200,7 +202,7 @@ public class HubService {
                 cardBankRepository.save(card);
             }
 
-            // Update the hub’s aggregated balances
+            // Update the hub's aggregated balances
             hub.updateBalances();
 
             // 6) Create a single transaction record for the entire sum
@@ -209,7 +211,9 @@ public class HubService {
             transaction.setAmount(amountNeeded);
             transaction.setHub(hub);
             transaction.setTransactionTime(LocalDateTime.now());
-            // (No single wallet used, so we don’t set `walletUsed` here)
+            transaction.setLongitude(request.getLongitude());
+            transaction.setLatitude(request.getLatitude());
+            // (No single wallet used, so we don't set `walletUsed` here)
 
             // Save transaction and hub
             transactionsRepository.save(transaction);
@@ -283,7 +287,7 @@ public class HubService {
                 // Deduct from the linked card
                 linkedCard.setCardBalance(linkedCard.getCardBalance() - amountNeeded);
 
-                // Update hub’s aggregated balances
+                // Update hub's aggregated balances
                 hub.updateBalances();
 
                 // Create and save the transaction record
@@ -293,6 +297,8 @@ public class HubService {
                 transaction.setWalletUsed(selectedWallet);
                 transaction.setHub(hub);
                 transaction.setTransactionTime(LocalDateTime.now());
+                transaction.setLongitude(request.getLongitude());
+                transaction.setLatitude(request.getLatitude());
                 transactionsRepository.save(transaction);
 
                 // Persist changes
@@ -402,7 +408,7 @@ public class HubService {
                 cardBankRepository.save(card);
             }
 
-            // Update the hub’s aggregated balances
+            // Update the hub's aggregated balances
             hub.updateBalances();
 
             // 7) Create a single transaction record for the entire sum
@@ -411,6 +417,8 @@ public class HubService {
             transaction.setAmount(amountNeeded);
             transaction.setHub(hub);
             transaction.setTransactionTime(LocalDateTime.now());
+            transaction.setLongitude(request.getLongitude());
+            transaction.setLatitude(request.getLatitude());
             // (No walletUsed here, since no wallet was selected)
 
             transactionsRepository.save(transaction);
@@ -557,7 +565,7 @@ public class HubService {
                 // Deduct from the linked card
                 linkedCard.setCardBalance(linkedCard.getCardBalance() - amountNeeded);
 
-                // Update hub’s aggregated balances
+                // Update hub's aggregated balances
                 hub.updateBalances();
 
                 // Create and save the transaction record
@@ -567,6 +575,8 @@ public class HubService {
                 transaction.setWalletUsed(selectedWallet);
                 transaction.setHub(hub);
                 transaction.setTransactionTime(LocalDateTime.now());
+                transaction.setLongitude(request.getLongitude());
+                transaction.setLatitude(request.getLatitude());
                 transactionsRepository.save(transaction);
 
                 // Persist changes
