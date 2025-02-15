@@ -13,7 +13,7 @@ import java.util.List;
 public interface UserService {
     List<BankCardEntity> getBankCards(String civilId);
 
-    LoginResponse registerUser(String civilId, String username, String password);
+    LoginResponse registerUser(String civilId, String username, String password, MultipartFile profilePicture);
 
     String validateOtp(String otp);
     ResponseEntity<Resource> getProfilePicture(UserEntity token);    GenerateOtpResponse generateOtp(String civilId);

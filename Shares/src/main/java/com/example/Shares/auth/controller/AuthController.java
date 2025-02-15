@@ -41,11 +41,13 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<LoginResponse> registerUser(@RequestBody RegisterUserRequest request) {
-        LoginResponse register = new LoginResponse();
-        register = userService.registerUser(request.getCivilId(), request.getUsername(), request.getPassword());
-        userService.registerUser(request.getCivilId(), request.getUsername(), request.getPassword());
-
+    public ResponseEntity<LoginResponse> registerUser(
+            @RequestParam("civilId") String civilId,
+            @RequestParam("username") String username,
+            @RequestParam("password") String password,
+            @RequestParam(value = "profilePicture", required = false) MultipartFile profilePicture) {
+        
+        LoginResponse register = userService.registerUser(civilId, username, password, profilePicture);
         return ResponseEntity.ok(register);
     }
 

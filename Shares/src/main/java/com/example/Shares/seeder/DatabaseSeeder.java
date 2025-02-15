@@ -271,37 +271,41 @@ public class DatabaseSeeder implements ApplicationRunner {
     }
 
     private void seedBillsTransactions(WalletEntity wallet) {
-        createTransaction(wallet, 65.000, "MEW Bill", 29.3759, 47.9774);
-        createTransaction(wallet, 35.000, "Zain Mobile", 29.3015, 47.9282);
-        createTransaction(wallet, 45.000, "Internet Bill", 29.3399, 47.9337);
-        createTransaction(wallet, 20.000, "Netflix & Spotify", 29.3399, 47.9337);
+        createTransaction(wallet, 65.000, "Ministry of Electricity", 29.3759, 47.9774);
+        createTransaction(wallet, 35.000, "Zain Kuwait", 29.3015, 47.9282);
+        createTransaction(wallet, 45.000, "Ooredoo Internet", 29.3399, 47.9337);
+        createTransaction(wallet, 20.000, "Netflix", 29.3399, 47.9337);
     }
 
     private void seedFoodTransactions(WalletEntity wallet) {
-        createTransaction(wallet, 12.000, "Breakfast - Mcdonalds", 29.3015, 47.9282);
-        createTransaction(wallet, 8.000, "Coffee - Costa", 29.3759, 47.9774);
-        createTransaction(wallet, 18.000, "Lunch - Elevation Burger", 29.3015, 47.9282);
-        createTransaction(wallet, 12.000, "Coffee with Friends", 29.3759, 47.9774);
-        createTransaction(wallet, 45.000, "Dinner - Buffalo's", 29.3015, 47.9282);
+        createTransaction(wallet, 12.000, "Starbucks - 360 Mall", 29.3015, 47.9282);
+        createTransaction(wallet, 8.500, "Pick - The Avenues", 29.3759, 47.9774);
+        createTransaction(wallet, 22.000, "Shake Shack - Avenues", 29.3015, 47.9282);
+        createTransaction(wallet, 15.500, "Caribou - Arraya", 29.3759, 47.9774);
+        createTransaction(wallet, 55.000, "Solo Pizza - Marina", 29.3015, 47.9282);
     }
 
     private void seedTravelTransactions(WalletEntity wallet) {
-        createTransaction(wallet, 75.000, "Dubai Flight Deposit", 29.3759, 47.9774);
-        createTransaction(wallet, 25.000, "Travel Insurance", 29.3759, 47.9774);
-        createTransaction(wallet, 20.000, "Visa Application", 29.3759, 47.9774);
+        createTransaction(wallet, 85.000, "Emirates Airlines", 29.3759, 47.9774);
+        createTransaction(wallet, 120.000, "Booking.com", 29.3759, 47.9774);
+        createTransaction(wallet, 35.000, "Dubai Visa Center", 29.3759, 47.9774);
+        createTransaction(wallet, 25.000, "AXA Insurance", 29.3759, 47.9774);
+        createTransaction(wallet, 15.000, "Uber Dubai", 29.3759, 47.9774);
     }
 
     private void seedGadgetsTransactions(WalletEntity wallet) {
-        createTransaction(wallet, 45.000, "PS5 Game - EA FC 24", 29.3759, 47.9774);
-        createTransaction(wallet, 35.000, "Gaming Headset", 29.3759, 47.9774);
-        createTransaction(wallet, 25.000, "PSN Credit", 29.3759, 47.9774);
-        createTransaction(wallet, 20.000, "Phone Case & Screen", 29.3759, 47.9774);
+        createTransaction(wallet, 65.000, "Xcite Electronics", 29.3759, 47.9774);
+        createTransaction(wallet, 45.000, "Virgin - Avenues", 29.3759, 47.9774);
+        createTransaction(wallet, 25.000, "PlayStation Store", 29.3759, 47.9774);
+        createTransaction(wallet, 35.000, "Blink Kuwait", 29.3759, 47.9774);
+        createTransaction(wallet, 15.000, "Apple Store", 29.3759, 47.9774);
     }
 
     private void seedEntertainmentTransactions(WalletEntity wallet) {
-        createTransaction(wallet, 65.000, "Shisha Night", 29.3015, 47.9282);
-        createTransaction(wallet, 35.000, "Cinema - Avenues", 29.3483, 47.9371);
-        createTransaction(wallet, 40.000, "Pool & Games", 29.3608, 47.9169);
+        createTransaction(wallet, 45.000, "Sky Lounge - Salmiya", 29.3015, 47.9282);
+        createTransaction(wallet, 35.000, "Cinescape - The Gate", 29.3483, 47.9371);
+        createTransaction(wallet, 25.000, "Nintendo Store", 29.3608, 47.9169);
+        createTransaction(wallet, 35.000, "Grand Cafe - Kuwait", 29.3015, 47.9282);
     }
 
     private void createTransaction(WalletEntity wallet, double amount, String name, double lat, double lon) {
