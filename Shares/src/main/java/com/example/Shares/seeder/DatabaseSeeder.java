@@ -1,4 +1,3 @@
-
 package com.example.Shares.seeder;
 
 import com.example.Shares.auth.entity.BankCardEntity;
