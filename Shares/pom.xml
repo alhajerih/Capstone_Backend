@@ -28,12 +28,12 @@
 	</scm>
 	<properties>
 		<java.version>17</java.version>
-		<spring-cloud.version>2022.0.3</spring-cloud.version>
+		<spring-cloud.version>2020.0.3</spring-cloud.version>
 
 
 		<maven.compiler.source>11</maven.compiler.source>
 		<maven.compiler.target>11</maven.compiler.target>
-		<spring.boot.version>2.7.5</spring.boot.version>
+<!--		<spring.boot.version>2.7.5</spring.boot.version>-->
 		<grpc.version>1.45.0</grpc.version>  <!-- Ensure all gRPC dependencies use 1.45.0 -->
 		<protobuf.version>3.19.4</protobuf.version>
 		<grpc-spring-boot.version>2.9.0.RELEASE</grpc-spring-boot.version>
@@ -147,14 +147,14 @@
 			<artifactId>jedis</artifactId>
 		</dependency>
 		<!--		Feign for microservice Config	-->
-		<dependency>
-			<groupId>org.springframework.cloud</groupId>
-			<artifactId>spring-cloud-starter-config</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.cloud</groupId>
-			<artifactId>spring-cloud-starter-openfeign</artifactId>
-		</dependency>
+<!--		<dependency>-->
+<!--			<groupId>org.springframework.cloud</groupId>-->
+<!--			<artifactId>spring-cloud-starter-config</artifactId>-->
+<!--		</dependency>-->
+<!--		<dependency>-->
+<!--			<groupId>org.springframework.cloud</groupId>-->
+<!--			<artifactId>spring-cloud-starter-openfeign</artifactId>-->
+<!--		</dependency>-->
 		<!--		eureka-client Config	-->
 		<dependency>
 			<groupId>org.springframework.cloud</groupId>

@@ -140,7 +140,9 @@ public class SecurityConfig extends org.springframework.security.config.annotati
                         "/ws/**",
                         "/api/setup/**",
                         "/api/user/pay-with-hubcard",
-                        "/api/user/qrcode"
+                        "/api/user/qrcode",
+                        "/api/user/pay-with-hubcard-unified",
+                        "/api/user/pay-with-hubcard-ai"
                 ).permitAll()
                 .antMatchers(AUTH_PATH + "/login", AUTH_PATH + "/generate-otp", AUTH_PATH + "/validate-otp", AUTH_PATH + "/register").permitAll()
                 .anyRequest().authenticated()
