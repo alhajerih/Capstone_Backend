@@ -6,7 +6,8 @@ import com.example.Shares.QRcode.QRCodeRepository;
 import com.example.Shares.auth.entity.BankCardEntity;
 import com.example.Shares.auth.entity.UserEntity;
 import com.example.Shares.auth.repository.BankCardRepository;
-import com.example.Shares.feign.Notification;
+//import com.example.Shares.feign.Notification;
+import com.example.Shares.grpc.NotificationGrpcClient;
 import com.example.Shares.hub.bo.HubCardPaymentRequest;
 import com.example.Shares.hub.bo.PaymentRequest;
 import com.example.Shares.hub.entity.HubEntity;
@@ -40,7 +41,7 @@ import java.util.stream.Collectors;
 @Service
 public class HubService {
 
-    private final Notification notificationService;
+//    private final Notification notificationService;
 //    private  final RestTemplate restTemplate;
     @Autowired
     private BankCardRepository cardBankRepository;
@@ -58,9 +59,12 @@ public class HubService {
     private TransactionsRepository transactionsRepository;
     private final RestTemplate restTemplate = new RestTemplate();
 
+    private final NotificationGrpcClient notificationGrpcClient;
+
     @Autowired
-    public HubService(Notification notificationService) {
-        this.notificationService = notificationService;
+    public HubService( NotificationGrpcClient notificationGrpcClient) {
+//        this.notificationService = notificationService;
+        this.notificationGrpcClient = notificationGrpcClient;
     }
 
 
@@ -92,7 +96,9 @@ public class HubService {
                 requestBody.put("amountNeeded", amountNeeded);
                 requestBody.put("transactionName", request.getTransactionName());
                 requestBody.put("failureReason", "Transaction canceled due to no linked card on selected wallet");
-                notificationService.sendFailureNotification(requestBody);
+                notificationGrpcClient.sendFailureNotification(amountNeeded, request.getTransactionName(), "No linked card on selected wallet");
+
+//                notificationService.sendFailureNotification(requestBody);
                 return false;
             }
 
@@ -121,10 +127,13 @@ public class HubService {
                 walletRepository.save(selectedWallet);
                 cardBankRepository.save(linkedCard);
                 hubRepository.save(hub);
-
+                // Send payment by gRPC
+                notificationGrpcClient.sendPaymentNotification(selectedWallet.getName(), selectedWallet.getBalance(), amountNeeded, request.getTransactionName());
                 return true;
             } else {
                 System.out.println("Transaction canceled due to insufficient funds in the selected wallet.");
+                notificationGrpcClient.sendFailureNotification(amountNeeded, request.getTransactionName(), "insufficient funds in the selected wallet.");
+
                 return false;
             }
 
@@ -142,6 +151,7 @@ public class HubService {
             // Edge case: No checking cards at all
             if (checkingCards.isEmpty()) {
                 System.out.println("Transaction canceled: No checking cards linked to Hub.");
+                notificationGrpcClient.sendFailureNotification(amountNeeded, request.getTransactionName(), "No checking cards linked to Hub.");
                 return false;
             }
 
@@ -153,6 +163,7 @@ public class HubService {
             // If total checking is insufficient, cancel transaction
             if (totalCheckingBalance < amountNeeded) {
                 System.out.println("Transaction canceled due to insufficient total checking balance.");
+                notificationGrpcClient.sendFailureNotification(amountNeeded, request.getTransactionName(), "Insufficient balance across all linked cards.");
                 return false;
             }
 
@@ -235,6 +246,7 @@ public class HubService {
         Optional<HubEntity> hubOptional = hubRepository.findByHubCardNumber(request.getHubCardNumber());
         if (hubOptional == null || !hubOptional.isPresent()) {
             System.out.println("Transaction failed: No hub found with the provided card number.");
+            notificationGrpcClient.sendFailureNotification(request.getAmount(), request.getTransactionName(), "No hub found with the provided card number");
 
             return false;
         }
@@ -276,6 +288,8 @@ public class HubService {
 
             if (linkedCard == null) {
                 System.out.println("Transaction canceled: no linked card on the selected wallet.");
+                notificationGrpcClient.sendFailureNotification(request.getAmount(), request.getTransactionName(), "no linked card on the selected wallet.");
+
                 return false;
             }
 
@@ -322,8 +336,8 @@ public class HubService {
                 requestBody.put("amountNeeded", amountNeeded);
                 requestBody.put("transactionName", request.getTransactionName());
                 requestBody.put("failureReason", "insufficient funds in the selected wallet.");
-                notificationService.sendFailureNotification(requestBody);
-
+//                notificationService.sendFailureNotification(requestBody);
+                notificationGrpcClient.sendFailureNotification(amountNeeded, request.getTransactionName(), "insufficient funds in the selected wallet.");
                 return false;
             }
 
@@ -345,8 +359,8 @@ public class HubService {
                 requestBody.put("transactionName", request.getTransactionName());
                 requestBody.put("failureReason", "no checking cards linked to this hub.");
 
-                notificationService.sendFailureNotification(requestBody);
-
+//                notificationService.sendFailureNotification(requestBody);
+                notificationGrpcClient.sendFailureNotification(amountNeeded, request.getTransactionName(), "insufficient funds in the selected wallet.");
 
                 return false;
             }
@@ -364,7 +378,8 @@ public class HubService {
                 requestBody.put("amountNeeded", amountNeeded);
                 requestBody.put("transactionName", request.getTransactionName());
                 requestBody.put("failureReason", "Insufficient balance across all linked cards.");
-                notificationService.sendFailureNotification(requestBody);
+//                notificationService.sendFailureNotification(requestBody);
+                notificationGrpcClient.sendFailureNotification(amountNeeded, request.getTransactionName(), "insufficient funds in the selected wallet.");
 
 
                 return false;
@@ -433,6 +448,8 @@ public class HubService {
                 sendTransactionStatus(status);
 
             }
+            notificationGrpcClient.sendPaymentNotification(selectedWallet.getName(), selectedWallet.getBalance(), amountNeeded, request.getTransactionName());
+
             transactionSuccessful = true; // Payment succeeded
         }
 
@@ -444,7 +461,8 @@ public class HubService {
             requestBody.put("amount", amountNeeded);
             requestBody.put("transactionName", request.getTransactionName());
 
-            notificationService.sendPaymentNotification(requestBody);
+//            notificationService.sendPaymentNotification(requestBody);
+            notificationGrpcClient.sendPaymentNotification(selectedWallet.getName(), selectedWallet.getBalance(), amountNeeded, request.getTransactionName());
 
         }
 
@@ -477,6 +495,8 @@ public class HubService {
         Optional<HubEntity> hubOptional = hubRepository.findByHubCardNumber(request.getHubCardNumber());
         if (!hubOptional.isPresent()) {
             System.out.println("Transaction failed: No hub found with the provided card number.");
+            notificationGrpcClient.sendFailureNotification(request.getAmount(), request.getTransactionName(), "No hub found with the provided card number.");
+
             return false;
         }
 
@@ -553,7 +573,9 @@ public class HubService {
                 requestBody.put("amountNeeded", amountNeeded);
                 requestBody.put("transactionName", request.getTransactionName());
                 requestBody.put("failureReason", "no linked card on the chosen wallet.");
-                notificationService.sendFailureNotification(requestBody);
+//                notificationService.sendFailureNotification(requestBody);
+                notificationGrpcClient.sendFailureNotification(request.getAmount(), request.getTransactionName(), "no linked card on the chosen wallet.");
+
                 return false;
             }
 
@@ -589,8 +611,9 @@ public class HubService {
                 requestBody.put("walletBalance", selectedWallet.getBalance());
                 requestBody.put("amount", amountNeeded);
                 requestBody.put("transactionName", request.getTransactionName());
+                notificationGrpcClient.sendPaymentNotification(selectedWallet.getName(), selectedWallet.getBalance(), amountNeeded, request.getTransactionName());
 
-                notificationService.sendPaymentNotification(requestBody);
+//                notificationService.sendPaymentNotification(requestBody);
 
                 return true;
             } else {
@@ -600,7 +623,9 @@ public class HubService {
                 requestBody.put("amountNeeded", amountNeeded);
                 requestBody.put("transactionName", request.getTransactionName());
                 requestBody.put("failureReason", "insufficient funds in the chosen wallet.");
-                notificationService.sendFailureNotification(requestBody);
+//                notificationService.sendFailureNotification(requestBody);
+                notificationGrpcClient.sendFailureNotification(request.getAmount(), request.getTransactionName(), "insufficient funds in the chosen wallet.");
+
                 return false;
             }
 
@@ -623,7 +648,9 @@ public class HubService {
                 requestBody.put("amountNeeded", amountNeeded);
                 requestBody.put("transactionName", request.getTransactionName());
                 requestBody.put("failureReason", "no checking cards linked to this hub.");
-                notificationService.sendFailureNotification(requestBody);
+//                notificationService.sendFailureNotification(requestBody);
+                notificationGrpcClient.sendFailureNotification(request.getAmount(), request.getTransactionName(), "no checking cards linked to this hub.");
+
                 return false;
             }
 
@@ -638,7 +665,9 @@ public class HubService {
                 requestBody.put("amountNeeded", amountNeeded);
                 requestBody.put("transactionName", request.getTransactionName());
                 requestBody.put("failureReason", "insufficient total checking balance.");
-                notificationService.sendFailureNotification(requestBody);
+//                notificationService.sendFailureNotification(requestBody);
+                notificationGrpcClient.sendFailureNotification(request.getAmount(), request.getTransactionName(), "insufficient total checking balance.");
+
                 return false;
             }
 
@@ -659,7 +688,8 @@ public class HubService {
             requestBody.put("amount", amountNeeded);
             requestBody.put("transactionName", request.getTransactionName());
 
-            notificationService.sendPaymentNotification(requestBody);
+            notificationGrpcClient.sendPaymentNotification(selectedWallet.getName(), selectedWallet.getBalance(), amountNeeded, request.getTransactionName());
+//            notificationService.sendPaymentNotification(requestBody);
             return true;
         }
     }
