@@ -28,7 +28,7 @@ import java.util.Optional;
 @Component
 public class DatabaseSeeder implements ApplicationRunner {
     private static final Logger logger = LoggerFactory.getLogger(DatabaseSeeder.class);
-    
+
     @Autowired
     private UserRepository userRepository;
 
@@ -56,17 +56,28 @@ public class DatabaseSeeder implements ApplicationRunner {
 
     private void seedUsers() {
         if (userRepository.count() == 0) {
-            UserEntity user = new UserEntity();
-            user.setCivilId("299010100494");  // Kuwaiti Civil ID format
-            user.setPhoneNumber("+96555123456");  // Kuwait phone number format
-            user.setUsername("jasim_kw");  // Username for login
-            user.setFirstName("Jasim");  // First name derived from Civil ID
-            user.setLastName("Al-deeb");  // Last name derived from Civil ID
-            user.setPictureUrl("default_profile.jpg");
-            user.setPassword(new BCryptPasswordEncoder().encode("password"));
-            user.setRole(Roles.User);
-            userRepository.save(user);
-            logger.info("User table seeded.");
+            // First user - fully set up account with hub and wallets
+            UserEntity establishedUser = new UserEntity();
+            establishedUser.setCivilId("299010100494");
+            establishedUser.setPhoneNumber("+96550215090");
+            establishedUser.setUsername("yousef");
+            establishedUser.setFirstName("Yousef");
+            establishedUser.setLastName("Almesaeed");
+            establishedUser.setPictureUrl("299010100494.jpg");
+            establishedUser.setPassword(new BCryptPasswordEncoder().encode("password"));
+            establishedUser.setRole(Roles.User);
+            userRepository.save(establishedUser);
+
+            // Second user - same person, different civil ID for registration demo
+            // Minimal details since this represents pre-registration state
+            UserEntity newUser = new UserEntity();
+            newUser.setCivilId("301020500392");
+            newUser.setPhoneNumber("+96550215090");
+            newUser.setFirstName("Yousef");
+            newUser.setLastName("Almesaeed");
+            userRepository.save(newUser);
+
+            logger.info("Users table seeded with two accounts for demo.");
         }
     }
 
@@ -78,9 +89,10 @@ public class DatabaseSeeder implements ApplicationRunner {
             return;
         }
 
-        Optional<UserEntity> userOptional = userRepository.findFirstByOrderByIdAsc();
+        // Only create hub for the established user
+        Optional<UserEntity> userOptional = userRepository.findByCivilId("299010100494");
         if (!userOptional.isPresent()) {
-            logger.warn("No users found. Skipping hub seeding.");
+            logger.warn("Established user not found. Skipping hub seeding.");
             return;
         }
 
@@ -88,7 +100,7 @@ public class DatabaseSeeder implements ApplicationRunner {
         logger.info("User found for hub: " + user.getCivilId());
 
         HubEntity hub = new HubEntity();
-        hub.setHubCardNumber("6515841523654789");  // Different prefix for hub card
+        hub.setHubCardNumber("2221841523654789");
         hub.setUser(user);
         hubRepository.save(hub);
 
@@ -103,47 +115,80 @@ public class DatabaseSeeder implements ApplicationRunner {
             return;
         }
 
-        Optional<UserEntity> userOptional = userRepository.findFirstByOrderByIdAsc();
-        if (!userOptional.isPresent()) {
-            logger.warn("No users found. Skipping bank card seeding.");
+        // Get both users
+        Optional<UserEntity> establishedUserOptional = userRepository.findByCivilId("299010100494");
+        Optional<UserEntity> newUserOptional = userRepository.findByCivilId("301020500392");
+
+        if (!establishedUserOptional.isPresent() || !newUserOptional.isPresent()) {
+            logger.warn("One or both users not found. Skipping bank card seeding.");
             return;
         }
 
-        UserEntity user = userOptional.get();
-        Optional<HubEntity> hubOptional = hubRepository.findFirstByOrderByIdAsc();
+        UserEntity establishedUser = establishedUserOptional.get();
+        UserEntity newUser = newUserOptional.get();
+
+        // Get hub for established user only
+        Optional<HubEntity> hubOptional = hubRepository.findAll().stream()
+                .filter(h -> h.getUser().getId().equals(establishedUser.getId()))
+                .findFirst();
+
         if (!hubOptional.isPresent()) {
-            logger.warn("No hub found. Skipping bank card seeding.");
+            logger.warn("No hub found for established user. Skipping bank card seeding.");
             return;
         }
         HubEntity hub = hubOptional.get();
 
-        // Main Salary Card (Boubyan)
-        BankCardEntity salaryCard = new BankCardEntity();
-        salaryCard.setCardBalance(1200.0);  // Mid-month salary remaining
-        salaryCard.setCardNumber("4565841523654789");
-        salaryCard.setBankName("Boubyan Bank");
-        salaryCard.setCardType("Salary Account");
-        salaryCard.setCvv("123");
-        salaryCard.setAccountNumber("0044556677");
-        salaryCard.setExpiryDate("05/27");
-        salaryCard.setHub(hub);
-        salaryCard.setUser(user);
-        bankCardRepository.save(salaryCard);
+        // FIRST USER: Established user's cards (linked to hub)
+        BankCardEntity establishedBoubyanCard = new BankCardEntity();
+        establishedBoubyanCard.setCardBalance(1200.0);
+        establishedBoubyanCard.setCardNumber("4565841523654789");
+        establishedBoubyanCard.setBankName("Boubyan Bank");
+        establishedBoubyanCard.setCardType("Checking Account");
+        establishedBoubyanCard.setCvv("123");
+        establishedBoubyanCard.setAccountNumber("0044556677");
+        establishedBoubyanCard.setExpiryDate("05/27");
+        establishedBoubyanCard.setHub(hub);
+        establishedBoubyanCard.setUser(establishedUser);
+        bankCardRepository.save(establishedBoubyanCard);
 
-        // Secondary Digital Card (Nomo)
-        BankCardEntity nomoCard = new BankCardEntity();
-        nomoCard.setCardBalance(850.0);    // Some savings and online spending
-        nomoCard.setCardNumber("4565841523654790");
-        nomoCard.setBankName("Nomo Bank");
-        nomoCard.setCardType("Digital Account");
-        nomoCard.setCvv("456");
-        nomoCard.setAccountNumber("0044556678");
-        nomoCard.setExpiryDate("08/27");
-        nomoCard.setUser(user);
-        nomoCard.setHub(hub);
-        bankCardRepository.save(nomoCard);
+        BankCardEntity establishedNomoCard = new BankCardEntity();
+        establishedNomoCard.setCardBalance(850.0);
+        establishedNomoCard.setCardNumber("4565841523654790");
+        establishedNomoCard.setBankName("Nomo Bank");
+        establishedNomoCard.setCardType("Digital Account");
+        establishedNomoCard.setCvv("456");
+        establishedNomoCard.setAccountNumber("0044556678");
+        establishedNomoCard.setExpiryDate("08/27");
+        establishedNomoCard.setUser(establishedUser);
+        establishedNomoCard.setHub(hub);
+        bankCardRepository.save(establishedNomoCard);
 
-        logger.info("Bank Cards table seeded successfully.");
+        // SECOND USER: New user's cards (completely separate, no hub)
+        BankCardEntity newKFHCard = new BankCardEntity();
+        newKFHCard.setCardBalance(2500.0);
+        newKFHCard.setCardNumber("4532789156234567");
+        newKFHCard.setBankName("Kuwait Finance House");
+        newKFHCard.setCardType("Savings Account");
+        newKFHCard.setCvv("789");
+        newKFHCard.setAccountNumber("0077889900");
+        newKFHCard.setExpiryDate("09/26");
+        newKFHCard.setUser(newUser);
+        // Explicitly not setting hub for second user
+        bankCardRepository.save(newKFHCard);
+
+        BankCardEntity newGulfBankCard = new BankCardEntity();
+        newGulfBankCard.setCardBalance(1800.0);
+        newGulfBankCard.setCardNumber("4532789156234568");
+        newGulfBankCard.setBankName("Gulf Bank");
+        newGulfBankCard.setCardType("Current Account");
+        newGulfBankCard.setCvv("321");
+        newGulfBankCard.setAccountNumber("0077889901");
+        newGulfBankCard.setExpiryDate("11/26");
+        newGulfBankCard.setUser(newUser);
+        // Explicitly not setting hub for second user
+        bankCardRepository.save(newGulfBankCard);
+
+        logger.info("Bank Cards table seeded successfully with separate cards for each user.");
     }
 
     private void seedWalletTable() {
@@ -154,21 +199,34 @@ public class DatabaseSeeder implements ApplicationRunner {
             return;
         }
 
-        Optional<UserEntity> userOptional = userRepository.findFirstByOrderByIdAsc();
+        // Get the established user specifically (not just first user)
+        Optional<UserEntity> userOptional = userRepository.findByCivilId("299010100494");
         if (!userOptional.isPresent()) {
-            logger.warn("No users found. Skipping wallet seeding.");
+            logger.warn("Established user not found. Skipping wallet seeding.");
             return;
         }
 
         UserEntity user = userOptional.get();
-        List<BankCardEntity> bankCards = bankCardRepository.findAll();
-        if (bankCards.isEmpty()) {
-            logger.warn("No bank cards found. Skipping wallet seeding.");
+        if (user.getHub() == null) {
+            logger.warn("User has no hub. Skipping wallet seeding.");
             return;
         }
 
-        BankCardEntity salaryCard = bankCards.get(0);  // Boubyan salary card
-        BankCardEntity nomoCard = bankCards.get(1);    // Nomo digital card
+        List<BankCardEntity> bankCards = bankCardRepository.findByUser(user);
+        if (bankCards.isEmpty()) {
+            logger.warn("No bank cards found for established user. Skipping wallet seeding.");
+            return;
+        }
+
+        BankCardEntity salaryCard = bankCards.stream()
+                .filter(card -> card.getBankName().equals("Boubyan Bank"))
+                .findFirst()
+                .orElse(bankCards.get(0));
+
+        BankCardEntity nomoCard = bankCards.stream()
+                .filter(card -> card.getBankName().equals("Nomo Bank"))
+                .findFirst()
+                .orElse(bankCards.get(bankCards.size() > 1 ? 1 : 0));
 
         // Bills & Essentials (from salary card)
         WalletEntity billsWallet = new WalletEntity();
@@ -271,44 +329,64 @@ public class DatabaseSeeder implements ApplicationRunner {
     }
 
     private void seedBillsTransactions(WalletEntity wallet) {
-        createTransaction(wallet, 20.000, "Netflix", 29.3399, 47.9337);
-        createTransaction(wallet, 65.000, "Ministry of Electricity", 29.3759, 47.9774);
-        createTransaction(wallet, 35.000, "Zain Kuwait", 29.3015, 47.9282);
-        createTransaction(wallet, 45.000, "Ooredoo Internet", 29.3399, 47.9337);
+
+        createTransaction(wallet, 20.000, "Netflix", 29.3399, 47.9337, "2024-03-15");
+        createTransaction(wallet, 65.000, "Ministry of Electricity", 29.3759, 47.9774, "2024-03-10");
+        createTransaction(wallet, 35.000, "Zain Kuwait", 29.3015, 47.9282, "2024-03-05");
+        createTransaction(wallet, 45.000, "Ooredoo Internet", 29.3399, 47.9337, "2024-02-28");
+        createTransaction(wallet, 12.500, "BeIN Sports", 29.3759, 47.9774, "2024-02-25");
+        createTransaction(wallet, 25.000, "Kuwait Municipality", 29.3483, 47.9371, "2024-02-20");
     }
 
     private void seedFoodTransactions(WalletEntity wallet) {
-        createTransaction(wallet, 8.500, "Pick - The Avenues", 29.3759, 47.9774);
-        createTransaction(wallet, 15.500, "Caribou - Arraya", 29.3759, 47.9774);
-        createTransaction(wallet, 18.750, "Table Otto - JACC", 29.3780, 47.9903);
-        createTransaction(wallet, 25.000, "Dar Hamad - Gulf Road", 29.3420, 48.2203);
-        createTransaction(wallet, 12.750, "Shake Shack - Al Kout", 29.0965, 48.1301);
+        createTransaction(wallet, 8.500, "Pick - The Avenues", 29.3759, 47.9774, "2024-03-18");
+        createTransaction(wallet, 15.500, "Caribou - Arraya", 29.3759, 47.9774, "2024-03-16");
+        createTransaction(wallet, 18.750, "Table Otto - JACC", 29.3780, 47.9903, "2024-03-14");
+        createTransaction(wallet, 25.000, "Dar Hamad - Gulf Road", 29.3420, 48.2203, "2024-03-12");
+        createTransaction(wallet, 12.750, "Shake Shack - Al Kout", 29.0965, 48.1301, "2024-03-08");
+        createTransaction(wallet, 7.500, "Starbucks - Marina Mall", 29.3399, 47.9337, "2024-03-06");
+        createTransaction(wallet, 32.000, "Salt - Kuwait City", 29.3759, 47.9774, "2024-03-02");
+        createTransaction(wallet, 22.500, "Mais Alghanim", 29.3483, 47.9371, "2024-02-28");
     }
 
     private void seedTravelTransactions(WalletEntity wallet) {
-        createTransaction(wallet, 85.000, "Kuwait Airways", 29.2268, 47.9689);
-        createTransaction(wallet, 120.000, "Booking.com", 29.3759, 47.9774);
-        createTransaction(wallet, 35.000, "Dubai Visa Center", 29.3759, 47.9774);
-        createTransaction(wallet, 25.000, "AXA Insurance", 29.3759, 47.9774);
-        createTransaction(wallet, 15.000, "Uber Dubai", 29.3759, 47.9774);
+        createTransaction(wallet, 85.000, "Kuwait Airways", 29.2268, 47.9689, "2024-03-20");
+        createTransaction(wallet, 120.000, "Booking.com", 29.3759, 47.9774, "2024-03-19");
+        createTransaction(wallet, 35.000, "Dubai Visa Center", 29.3759, 47.9774, "2024-03-15");
+        createTransaction(wallet, 25.000, "AXA Insurance", 29.3759, 47.9774, "2024-03-10");
+        createTransaction(wallet, 15.000, "Uber Dubai", 29.3759, 47.9774, "2024-02-25");
+        createTransaction(wallet, 145.000, "Turkish Airlines", 29.2268, 47.9689, "2024-02-20");
+        createTransaction(wallet, 65.000, "Hilton Dubai", 29.3759, 47.9774, "2024-02-15");
+        createTransaction(wallet, 40.000, "Careem Kuwait", 29.3483, 47.9371, "2024-02-10");
+
     }
 
     private void seedGadgetsTransactions(WalletEntity wallet) {
-        createTransaction(wallet, 65.000, "Xcite Electronics", 29.3759, 47.9774);
-        createTransaction(wallet, 45.000, "Virgin - Avenues", 29.3759, 47.9774);
-        createTransaction(wallet, 25.000, "PlayStation Store", 29.3759, 47.9774);
-        createTransaction(wallet, 35.000, "Blink Kuwait", 29.3759, 47.9774);
-        createTransaction(wallet, 15.000, "Apple Store", 29.3759, 47.9774);
+        createTransaction(wallet, 65.000, "Xcite Electronics", 29.3759, 47.9774, "2024-03-17");
+        createTransaction(wallet, 45.000, "Virgin - Avenues", 29.3759, 47.9774, "2024-03-15");
+        createTransaction(wallet, 25.000, "PlayStation Store", 29.3759, 47.9774, "2024-03-10");
+        createTransaction(wallet, 35.000, "Blink Kuwait", 29.3759, 47.9774, "2024-03-05");
+        createTransaction(wallet, 15.000, "Apple Store", 29.3759, 47.9774, "2024-02-28");
+        createTransaction(wallet, 299.000, "iPhone Case - Xcite", 29.3759, 47.9774, "2024-02-20");
+        createTransaction(wallet, 89.000, "Gaming Chair - Blink", 29.3483, 47.9371, "2024-02-15");
+        createTransaction(wallet, 49.000, "Apple AirPods - Virgin", 29.3759, 47.9774, "2024-02-10");
     }
 
     private void seedEntertainmentTransactions(WalletEntity wallet) {
-        createTransaction(wallet, 75.000, "VOX Cinema - Avenues", 29.2694, 47.9783);
-        createTransaction(wallet, 35.000, "Cinescape - The Gate", 29.3483, 47.9371);
-        createTransaction(wallet, 25.000, "Nintendo Store", 29.3608, 47.9169);
-        createTransaction(wallet, 35.000, "Grand Cafe - Kuwait", 29.3015, 47.9282);
+
+        createTransaction(wallet, 75.000, "VOX Cinema - Avenues", 29.2694, 47.9783, "2024-03-19");
+        createTransaction(wallet, 35.000, "Cinescape - The Gate", 29.3483, 47.9371, "2024-03-15");
+        createTransaction(wallet, 25.000, "Nintendo Store", 29.3608, 47.9169, "2024-03-12");
+        createTransaction(wallet, 35.000, "Grand Cafe - Kuwait", 29.3015, 47.9282, "2024-03-08");
+        createTransaction(wallet, 120.000, "Kuwait Opera House", 29.3399, 47.9337, "2024-03-05");
+        createTransaction(wallet, 45.000, "Bowling City - Kuwait", 29.3483, 47.9371, "2024-03-01");
+        createTransaction(wallet, 85.000, "Kuwait Magic Mall", 29.3759, 47.9774, "2024-02-25");
+        createTransaction(wallet, 15.000, "Netflix Subscription", 29.3759, 47.9774, "2024-02-20");
+        createTransaction(wallet, 25.000, "OSN Streaming", 29.3759, 47.9774, "2024-02-15");
+
     }
 
-    private void createTransaction(WalletEntity wallet, double amount, String name, double lat, double lon) {
+    private void createTransaction(WalletEntity wallet, double amount, String name, double lat, double lon, String date) {
         TransactionsEntity transaction = new TransactionsEntity();
         transaction.setAmount(amount);
         transaction.setTransactionName(name);
@@ -316,7 +394,7 @@ public class DatabaseSeeder implements ApplicationRunner {
         transaction.setHub(wallet.getHub());
         transaction.setLatitude(lat);
         transaction.setLongitude(lon);
+        transaction.setTransactionTime(java.time.LocalDateTime.parse(date + "T00:00:00"));
         transactionsRepository.save(transaction);
     }
 }
-

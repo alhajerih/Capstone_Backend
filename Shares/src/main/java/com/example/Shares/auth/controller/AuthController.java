@@ -137,6 +137,7 @@ public class AuthController {
         if (user == null || user.getPictureUrl() == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         }
+
         return userService.getProfilePicture(user);
     }
 
