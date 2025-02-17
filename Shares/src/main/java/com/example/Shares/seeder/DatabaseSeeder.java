@@ -329,6 +329,7 @@ public class DatabaseSeeder implements ApplicationRunner {
     }
 
     private void seedBillsTransactions(WalletEntity wallet) {
+
         createTransaction(wallet, 20.000, "Netflix", 29.3399, 47.9337, "2024-03-15");
         createTransaction(wallet, 65.000, "Ministry of Electricity", 29.3759, 47.9774, "2024-03-10");
         createTransaction(wallet, 35.000, "Zain Kuwait", 29.3015, 47.9282, "2024-03-05");
@@ -357,6 +358,7 @@ public class DatabaseSeeder implements ApplicationRunner {
         createTransaction(wallet, 145.000, "Turkish Airlines", 29.2268, 47.9689, "2024-02-20");
         createTransaction(wallet, 65.000, "Hilton Dubai", 29.3759, 47.9774, "2024-02-15");
         createTransaction(wallet, 40.000, "Careem Kuwait", 29.3483, 47.9371, "2024-02-10");
+
     }
 
     private void seedGadgetsTransactions(WalletEntity wallet) {
@@ -371,6 +373,7 @@ public class DatabaseSeeder implements ApplicationRunner {
     }
 
     private void seedEntertainmentTransactions(WalletEntity wallet) {
+
         createTransaction(wallet, 75.000, "VOX Cinema - Avenues", 29.2694, 47.9783, "2024-03-19");
         createTransaction(wallet, 35.000, "Cinescape - The Gate", 29.3483, 47.9371, "2024-03-15");
         createTransaction(wallet, 25.000, "Nintendo Store", 29.3608, 47.9169, "2024-03-12");
@@ -380,6 +383,7 @@ public class DatabaseSeeder implements ApplicationRunner {
         createTransaction(wallet, 85.000, "Kuwait Magic Mall", 29.3759, 47.9774, "2024-02-25");
         createTransaction(wallet, 15.000, "Netflix Subscription", 29.3759, 47.9774, "2024-02-20");
         createTransaction(wallet, 25.000, "OSN Streaming", 29.3759, 47.9774, "2024-02-15");
+
     }
 
     private void createTransaction(WalletEntity wallet, double amount, String name, double lat, double lon, String date) {
