@@ -226,6 +226,7 @@
 	</dependencies>
 
 	<build>
+	<finalName>app</finalName>
 		<extensions>
 			<extension>
 				<groupId>kr.motd.maven</groupId>

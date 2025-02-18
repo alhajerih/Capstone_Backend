@@ -1,6 +1,6 @@
 package com.example.notificationservice.entity;
 
-import jakarta.persistence.*;
+import javax.persistence.*;
 
 
 @Entity

@@ -96,7 +96,6 @@ services:
     ports:
       - "8081:8081"
     depends_on:
-      - shares-app
       - postgres
       - eureka-server
       - redis
